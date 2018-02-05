@@ -22,6 +22,34 @@ public class NoteModel {
         this.message = message;
     }
 
+    @Override
+    public String toString() {
+        return "NoteModel{" +
+                "id='" + id + '\'' +
+                ", datetime=" + datetime +
+                ", message='" + message + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        NoteModel noteModel = (NoteModel) o;
+
+        return datetime == noteModel.datetime && id.equals(noteModel.id)
+                && message.equals(noteModel.message);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + (int) (datetime ^ (datetime >>> 32));
+        result = 31 * result + message.hashCode();
+        return result;
+    }
+
     public String getId() {
         return id;
     }
