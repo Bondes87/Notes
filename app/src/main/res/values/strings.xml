@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Notes</string>
+    <string name="text_no_notes">No notes</string>
+    <string name="text_hint_for_message">Enter note</string>
 </resources>
