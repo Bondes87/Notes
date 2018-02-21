@@ -1,4 +1,4 @@
-package com.dbondarenko.shpp.notes.webserver.models;
+package com.dbondarenko.shpp.core.models;
 
 /**
  * File: Error.java

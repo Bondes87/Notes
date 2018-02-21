@@ -1,13 +1,13 @@
 package com.dbondarenko.shpp.notes.webserver.api;
 
-import com.dbondarenko.shpp.notes.webserver.models.AddNoteResult;
-import com.dbondarenko.shpp.notes.webserver.models.ApiResponse;
-import com.dbondarenko.shpp.notes.webserver.models.DeleteNoteResult;
-import com.dbondarenko.shpp.notes.webserver.models.Error;
-import com.dbondarenko.shpp.notes.webserver.models.GetCountNotes;
-import com.dbondarenko.shpp.notes.webserver.models.GetNotesResult;
-import com.dbondarenko.shpp.notes.webserver.models.NoteModel;
-import com.dbondarenko.shpp.notes.webserver.models.UpdateNoteResult;
+import com.dbondarenko.shpp.core.models.AddNoteResult;
+import com.dbondarenko.shpp.core.models.ApiResponse;
+import com.dbondarenko.shpp.core.models.DeleteNoteResult;
+import com.dbondarenko.shpp.core.models.Error;
+import com.dbondarenko.shpp.core.models.GetCountNotes;
+import com.dbondarenko.shpp.core.models.GetNotesResult;
+import com.dbondarenko.shpp.core.models.NoteModel;
+import com.dbondarenko.shpp.core.models.UpdateNoteResult;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
