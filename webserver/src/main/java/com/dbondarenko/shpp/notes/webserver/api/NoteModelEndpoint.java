@@ -22,9 +22,8 @@ import javax.inject.Named;
  * An endpoint class we are exposing
  */
 @Api(
-        name = "notesApi",
+        name = "notes",
         version = "v1",
-        resource = "notesList",
         namespace = @ApiNamespace(
                 ownerDomain = "models.server.shpp.dbondarenko.com",
                 ownerName = "models.server.shpp.dbondarenko.com",
@@ -41,7 +40,9 @@ public class NoteModelEndpoint {
         notesList = new ArrayList<>();
     }
 
-    @ApiMethod(name = "addNote")
+    @ApiMethod(name = "addNote",
+            httpMethod = ApiMethod.HttpMethod.POST,
+            path = "addNote")
     public ApiResponse addNote(NoteModel note) {
         logger.info("Calling addNote method.");
         if (note == null) {
@@ -57,7 +58,9 @@ public class NoteModelEndpoint {
         return new ApiResponse(new AddNoteResult(true));
     }
 
-    @ApiMethod(name = "getAllNotes")
+    @ApiMethod(name = "getAllNotes",
+            httpMethod = ApiMethod.HttpMethod.GET,
+            path = "getAllNotes")
     public ApiResponse getAllNotes() {
         logger.info("Calling getAllNotes method.");
         if (notesList.size() == 0) {
@@ -67,7 +70,8 @@ public class NoteModelEndpoint {
     }
 
     @ApiMethod(name = "getNotes",
-            httpMethod = ApiMethod.HttpMethod.GET)
+            httpMethod = ApiMethod.HttpMethod.GET,
+            path = "getNotes")
     public ApiResponse getNotes(@Named("startPosition") int startPosition, @Named("amount") int amount) {
         logger.info("Calling getNotes method.");
         if (notesList.size() == 0) {
@@ -94,13 +98,15 @@ public class NoteModelEndpoint {
 
     @ApiMethod(name = "getCountNotes",
             httpMethod = ApiMethod.HttpMethod.GET,
-            path = "notesList/count")
+            path = "getCountNotes")
     public ApiResponse getCountNotes() {
         logger.info("Calling getCountNotes method.");
         return new ApiResponse(new GetCountNotes(notesList.size()));
     }
 
-    @ApiMethod(name = "updateNote")
+    @ApiMethod(name = "updateNote",
+            httpMethod = ApiMethod.HttpMethod.PUT,
+            path = "updateNote")
     public ApiResponse updateNote(NoteModel note) {
         logger.info("Calling updateNote method.");
         if (note == null) {
@@ -117,7 +123,9 @@ public class NoteModelEndpoint {
         return new ApiResponse(new Error("Note does not exist."));
     }
 
-    @ApiMethod(name = "deleteNote")
+    @ApiMethod(name = "deleteNote",
+            httpMethod = ApiMethod.HttpMethod.DELETE,
+            path = "deleteNote")
     public ApiResponse deleteNote(@Named("datetime") long datetime) {
         logger.info("Calling deleteNote method ");
         if (notesList.size() == 0) {
