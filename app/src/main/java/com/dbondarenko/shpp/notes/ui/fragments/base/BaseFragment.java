@@ -3,12 +3,16 @@ package com.dbondarenko.shpp.notes.ui.fragments.base;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.dbondarenko.shpp.notes.api.ApiName;
+import com.dbondarenko.shpp.notes.api.response.model.base.BaseErrorModel;
+import com.dbondarenko.shpp.notes.api.response.model.base.BaseResultModel;
 import com.dbondarenko.shpp.notes.ui.activites.base.BaseActivity;
 
 /**
@@ -29,6 +33,10 @@ public abstract class BaseFragment extends Fragment {
 
     public abstract View getContentView(LayoutInflater inflater, @Nullable ViewGroup container,
                                         @Nullable Bundle savedInstanceState);
+
+    public abstract void handleSuccessResult(ApiName apiName, BaseResultModel baseResultModel);
+
+    public abstract void handleFailureResult(BaseErrorModel baseErrorModel);
 
     @Override
     public void onAttach(Context context) {
@@ -89,5 +97,15 @@ public abstract class BaseFragment extends Fragment {
     public BaseActivity getBaseActivity() {
         Log.d(TAG, "getBaseActivity");
         return (BaseActivity) getActivity();
+    }
+
+    public void showMessage(View view, String message) {
+        Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_LONG)
+                .setAction(android.R.string.ok, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                });
+        snackbar.show();
     }
 }

@@ -26,7 +26,7 @@
                                 your Android application to this backend</a></li>
                     </ul>
                 </li>
-                <li><a href="/_ah/api/explorer">Google Cloud Endpoints API Explorer</a></li>
+                <li><a href="/_ah/apiService/explorer">Google Cloud Endpoints API Explorer</a></li>
                 <li><a href="https://console.developers.google.com">Google Developers Console</a></li>
             </ul>
         </div>
@@ -70,7 +70,7 @@
                             href="https://developers.google.com/appengine/docs/java/endpoints/">Cloud Endpoints
                         documentation</a>.<br/>
                         If you'd like to access your generated Google Cloud Endpoints APIs directly, see the <a
-                            href="/_ah/api/explorer">Cloud Endpoints API Explorer</a>.
+                            href="/_ah/apiService/explorer">Cloud Endpoints API Explorer</a>.
                     </small>
                 </p>
             </div>
@@ -105,12 +105,12 @@
     function init() {
       var apiName = 'myApi';
       var apiVersion = 'v1';
-      var apiRoot = 'https://' + window.location.host + '/_ah/api';
+      var apiRoot = 'https://' + window.location.host + '/_ah/apiService';
       if (window.location.hostname == 'localhost'
           || window.location.hostname == '127.0.0.1'
           || ((window.location.port != "") && (window.location.port > 1023))) {
             // We're probably running against the DevAppServer
-            apiRoot = 'http://' + window.location.host + '/_ah/api';
+            apiRoot = 'http://' + window.location.host + '/_ah/apiService';
       }
       var callback = function() {
         enableClick();
@@ -121,7 +121,7 @@
 </script>
 <!--
  Load the Google APIs Client Library for JavaScript
- More info here : https://developers.google.com/api-client-library/javascript/reference/referencedocs
+ More info here : https://developers.gooapiServicevice/api-client-library/javascript/reference/referencedocs
 -->
 
 <script src="https://apis.google.com/js/client.js?onload=init"></script>

@@ -8,6 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.dbondarenko.shpp.notes.R;
+import com.dbondarenko.shpp.notes.api.ApiName;
+import com.dbondarenko.shpp.notes.api.response.model.base.BaseErrorModel;
+import com.dbondarenko.shpp.notes.api.response.model.base.BaseResultModel;
 import com.dbondarenko.shpp.notes.ui.fragments.base.BaseFragment;
 
 public class NoteFragment extends BaseFragment {
@@ -18,7 +21,17 @@ public class NoteFragment extends BaseFragment {
     @Override
     public View getContentView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle
             savedInstanceState) {
-        Log.d(TAG, "getContentView");
+        Log.d(TAG, "getContentView()");
         return inflater.inflate(R.layout.fragment_note, container, false);
+    }
+
+    @Override
+    public void handleSuccessResult(ApiName apiName, BaseResultModel baseResultModel) {
+        Log.d(TAG, "handleSuccessResult()");
+    }
+
+    @Override
+    public void handleFailureResult(BaseErrorModel baseErrorModel) {
+        Log.d(TAG, "handleFailureResult()");
     }
 }

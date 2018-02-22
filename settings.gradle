@@ -1,1 +1,1 @@
-include ':app', ':webserver'
+include ':app', ':webserver', ':core'

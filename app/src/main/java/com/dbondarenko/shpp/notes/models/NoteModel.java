@@ -3,6 +3,9 @@ package com.dbondarenko.shpp.notes.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 /**
  * File: NoteModel.java
  *
@@ -26,8 +29,16 @@ public class NoteModel implements Parcelable {
                 }
             };
 
+    @SerializedName("datetime")
+    @Expose
     private long datetime;
+
+    @SerializedName("message")
+    @Expose
     private String message;
+
+    public NoteModel() {
+    }
 
     public NoteModel(long datetime, String message) {
         this.datetime = datetime;

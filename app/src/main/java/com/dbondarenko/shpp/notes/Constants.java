@@ -17,4 +17,10 @@ public class Constants {
     // The keys for getting a note and note position from the arguments of the fragment.
     public static final String KEY_NOTE = "KeyNote";
     public static final String KEY_NOTE_POSITION = "KeyNotePosition";
+
+    // Identifiers for async task loaders
+    public static final int LOADER_ID_API_SERVICE = 1;
+
+    public static final int AMOUNT_OF_NOTES_TO_DOWNLOAD = 3;
+    public static final String KEY_START_NOTE_POSITION = "KeyStartNotePosition";
 }
