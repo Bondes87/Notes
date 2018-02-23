@@ -7,6 +7,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -31,6 +32,7 @@ import com.dbondarenko.shpp.notes.ui.fragments.base.BaseFragment;
 import com.dbondarenko.shpp.notes.ui.listeners.OnEmptyListListener;
 import com.dbondarenko.shpp.notes.ui.listeners.OnListItemClickListener;
 import com.dbondarenko.shpp.notes.ui.loaders.ApiServiceAsyncTaskLoader;
+import com.dbondarenko.shpp.notes.ui.widgets.MarginDecoration;
 
 public class NotesListFragment extends BaseFragment implements View.OnClickListener,
         OnEmptyListListener, OnListItemClickListener, LoaderManager.LoaderCallbacks<ApiLoaderResponse> {
@@ -197,6 +199,8 @@ public class NotesListFragment extends BaseFragment implements View.OnClickListe
         Log.d(TAG, "initRecyclerView()");
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerViewNotesList.setLayoutManager(linearLayoutManager);
+        recyclerViewNotesList.setItemAnimator(new DefaultItemAnimator());
+        recyclerViewNotesList.addItemDecoration(new MarginDecoration(getContext()));
         initRecyclerViewAdapter();
         recyclerViewNotesList.setAdapter(noteAdapter);
     }
