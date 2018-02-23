@@ -58,14 +58,14 @@ public class NotesListFragment extends BaseFragment implements View.OnClickListe
     @Override
     public View getContentView(LayoutInflater inflater, @Nullable ViewGroup container,
                                @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "getContentView");
+        Log.d(TAG, "getContentView()");
         return inflater.inflate(R.layout.fragment_notes_list, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Log.d(TAG, "onViewCreated");
+        Log.d(TAG, "onViewCreated()");
         initViews(view);
         initActionBar();
         initRecyclerView();
@@ -73,6 +73,7 @@ public class NotesListFragment extends BaseFragment implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
+        Log.d(TAG, "onClick()");
         switch (v.getId()) {
             case R.id.floatingActionButtonAddNote:
                 showNoteFragment(new NoteFragment());
