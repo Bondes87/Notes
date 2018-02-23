@@ -99,13 +99,19 @@ public abstract class BaseFragment extends Fragment {
         return (BaseActivity) getActivity();
     }
 
-    public void showMessage(View view, String message) {
+    public void showMessageInSnackbar(View view, String message) {
         Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_LONG)
                 .setAction(android.R.string.ok, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                     }
                 });
+        snackbar.show();
+    }
+
+    public void showMessageInSnackbar(View view, String message, View.OnClickListener onClickListener) {
+        Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE)
+                .setAction(android.R.string.ok, onClickListener);
         snackbar.show();
     }
 }

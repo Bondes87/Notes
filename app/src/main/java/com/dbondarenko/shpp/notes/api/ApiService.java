@@ -1,9 +1,13 @@
 package com.dbondarenko.shpp.notes.api;
 
+import com.dbondarenko.shpp.notes.api.response.AddNoteResponse;
 import com.dbondarenko.shpp.notes.api.response.GetNotesResponse;
+import com.dbondarenko.shpp.notes.models.NoteModel;
 
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Query;
 
 /**
@@ -21,4 +25,7 @@ public interface ApiService {
 
     @GET("/_ah/api/notes/v1/getNotes")
     Call<GetNotesResponse> getNotes(@Query("startPosition") int startPosition, @Query("amount") int amount);
+
+    @POST("/_ah/api/notes/v1/addNote")
+    Call<AddNoteResponse> addNote(@Body NoteModel note);
 }

@@ -3,6 +3,8 @@ package com.dbondarenko.shpp.notes.api.response.model.base;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * File: BaseErrorModel.java
  *
@@ -11,7 +13,7 @@ import com.google.gson.annotations.SerializedName;
  *         Time: 12:25
  *         E-mail: bondes87@gmail.com
  */
-public class BaseErrorModel {
+public class BaseErrorModel implements Serializable {
     @SerializedName("message")
     @Expose
     private String message;

@@ -21,6 +21,7 @@ public class Constants {
     // Identifiers for async task loaders
     public static final int LOADER_ID_API_SERVICE = 1;
 
-    public static final int AMOUNT_OF_NOTES_TO_DOWNLOAD = 3;
+    public static final int AMOUNT_OF_NOTES_TO_DOWNLOAD = 5;
     public static final String KEY_START_NOTE_POSITION = "KeyStartNotePosition";
+    public static final String KEY_REQUEST = "KeyRequest";
 }

@@ -23,7 +23,7 @@ import com.dbondarenko.shpp.notes.R;
 import com.dbondarenko.shpp.notes.api.ApiLoaderResponse;
 import com.dbondarenko.shpp.notes.api.ApiName;
 import com.dbondarenko.shpp.notes.api.request.GetNotesRequest;
-import com.dbondarenko.shpp.notes.api.request.models.GetNotesModel;
+import com.dbondarenko.shpp.notes.api.request.models.GetNotesRequestModel;
 import com.dbondarenko.shpp.notes.api.response.model.GetNotesResultModel;
 import com.dbondarenko.shpp.notes.api.response.model.base.BaseErrorModel;
 import com.dbondarenko.shpp.notes.api.response.model.base.BaseResultModel;
@@ -108,7 +108,7 @@ public class NotesListFragment extends BaseFragment implements View.OnClickListe
             case Constants.LOADER_ID_API_SERVICE:
                 if (args != null) {
                     return new ApiServiceAsyncTaskLoader(getContext().getApplicationContext(),
-                            new GetNotesRequest(new GetNotesModel(
+                            new GetNotesRequest(new GetNotesRequestModel(
                                     args.getInt(Constants.KEY_START_NOTE_POSITION),
                                     Constants.AMOUNT_OF_NOTES_TO_DOWNLOAD)));
                 }
@@ -132,7 +132,7 @@ public class NotesListFragment extends BaseFragment implements View.OnClickListe
                 }
             } else {
                 if (data.getException() != null) {
-                    showMessage(getView(), getString(R.string.error_loading_data));
+                    showMessageInSnackbar(getView(), getString(R.string.error_loading_data));
                 }
             }
         }
@@ -148,7 +148,7 @@ public class NotesListFragment extends BaseFragment implements View.OnClickListe
         Log.d(TAG, "handleFailureResult()");
         String message = baseErrorModel.getMessage();
         if (!TextUtils.isEmpty(message)) {
-            showMessage(getView(), message);
+            showMessageInSnackbar(getView(), message);
         }
     }
 

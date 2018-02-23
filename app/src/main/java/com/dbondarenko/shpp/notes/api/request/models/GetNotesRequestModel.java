@@ -5,37 +5,37 @@ import android.os.Parcel;
 import com.dbondarenko.shpp.notes.api.request.models.base.BaseRequestModel;
 
 /**
- * File: GetNotesModel.java
+ * File: GetNotesRequestModel.java
  *
  * @author Dmytro Bondarenko
  *         Date: 21.02.2018
  *         Time: 9:36
  *         E-mail: bondes87@gmail.com
  */
-public class GetNotesModel extends BaseRequestModel {
+public class GetNotesRequestModel extends BaseRequestModel {
 
-    public static final Creator<GetNotesModel> CREATOR =
-            new Creator<GetNotesModel>() {
+    public static final Creator<GetNotesRequestModel> CREATOR =
+            new Creator<GetNotesRequestModel>() {
                 @Override
-                public GetNotesModel createFromParcel(Parcel source) {
-                    return new GetNotesModel(source);
+                public GetNotesRequestModel createFromParcel(Parcel source) {
+                    return new GetNotesRequestModel(source);
                 }
 
                 @Override
-                public GetNotesModel[] newArray(int size) {
-                    return new GetNotesModel[size];
+                public GetNotesRequestModel[] newArray(int size) {
+                    return new GetNotesRequestModel[size];
                 }
             };
 
     private int startPosition;
     private int amount;
 
-    public GetNotesModel(int startPosition, int amount) {
+    public GetNotesRequestModel(int startPosition, int amount) {
         this.startPosition = startPosition;
         this.amount = amount;
     }
 
-    protected GetNotesModel(Parcel in) {
+    protected GetNotesRequestModel(Parcel in) {
         this.startPosition = in.readInt();
         this.amount = in.readInt();
     }

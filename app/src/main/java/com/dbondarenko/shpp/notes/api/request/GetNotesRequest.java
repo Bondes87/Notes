@@ -2,7 +2,7 @@ package com.dbondarenko.shpp.notes.api.request;
 
 import com.dbondarenko.shpp.notes.api.ApiName;
 import com.dbondarenko.shpp.notes.api.request.base.BaseRequest;
-import com.dbondarenko.shpp.notes.api.request.models.GetNotesModel;
+import com.dbondarenko.shpp.notes.api.request.models.GetNotesRequestModel;
 
 /**
  * File: GetNotesRequest.java
@@ -12,8 +12,8 @@ import com.dbondarenko.shpp.notes.api.request.models.GetNotesModel;
  *         Time: 9:46
  *         E-mail: bondes87@gmail.com
  */
-public class GetNotesRequest extends BaseRequest<GetNotesModel> {
-    public GetNotesRequest(GetNotesModel requestModel) {
+public class GetNotesRequest extends BaseRequest<GetNotesRequestModel> {
+    public GetNotesRequest(GetNotesRequestModel requestModel) {
         super(ApiName.GET_GET_NOTES, requestModel);
     }
 }

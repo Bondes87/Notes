@@ -8,9 +8,12 @@ import android.util.Log;
 import com.dbondarenko.shpp.notes.api.ApiLoaderResponse;
 import com.dbondarenko.shpp.notes.api.ApiService;
 import com.dbondarenko.shpp.notes.api.RetrofitHelper;
+import com.dbondarenko.shpp.notes.api.request.AddNoteRequest;
 import com.dbondarenko.shpp.notes.api.request.GetNotesRequest;
 import com.dbondarenko.shpp.notes.api.request.base.BaseRequest;
+import com.dbondarenko.shpp.notes.api.response.AddNoteResponse;
 import com.dbondarenko.shpp.notes.api.response.GetNotesResponse;
+import com.dbondarenko.shpp.notes.models.NoteModel;
 
 import retrofit2.Retrofit;
 
@@ -53,6 +56,9 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
                 case GET_GET_NOTES:
                     return getApiLoaderGetNotesResponse(apiService);
 
+                case POST_ADD_NOTE:
+                    return getApiLoaderAddNoteResponse(apiService);
+
                 default:
                     return null;
             }
@@ -65,6 +71,21 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
     public void onStopLoading() {
         Log.d(TAG, "onStopLoading()");
         cancelLoad();
+    }
+
+    private ApiLoaderResponse getApiLoaderAddNoteResponse(ApiService apiService) {
+        Log.d(TAG, "getApiLoaderAddNoteResponse() " + apiService);
+        ApiLoaderResponse<AddNoteResponse> apiLoaderAddNoteResponse = new ApiLoaderResponse<>();
+        apiLoaderAddNoteResponse.setApiName(baseRequest.getApiName());
+        AddNoteRequest addNoteRequest = (AddNoteRequest) baseRequest;
+        NoteModel note = addNoteRequest.getRequestModel().getNote();
+        try {
+            apiLoaderAddNoteResponse.setResponse(apiService.addNote(note).execute());
+        } catch (Exception e) {
+            e.printStackTrace();
+            apiLoaderAddNoteResponse.setException(e);
+        }
+        return apiLoaderAddNoteResponse;
     }
 
     @NonNull

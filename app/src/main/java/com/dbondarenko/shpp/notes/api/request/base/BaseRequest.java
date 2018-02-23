@@ -1,6 +1,10 @@
 package com.dbondarenko.shpp.notes.api.request.base;
 
+import android.os.Parcelable;
+
 import com.dbondarenko.shpp.notes.api.ApiName;
+
+import java.io.Serializable;
 
 /**
  * File: BaseRequest.java
@@ -10,7 +14,7 @@ import com.dbondarenko.shpp.notes.api.ApiName;
  *         Time: 15:20
  *         E-mail: bondes87@gmail.com
  */
-public abstract class BaseRequest<T> {
+public abstract class BaseRequest<T> implements Serializable{
     private ApiName apiName;
     private T requestModel;
 
