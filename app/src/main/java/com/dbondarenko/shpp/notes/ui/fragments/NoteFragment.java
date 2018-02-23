@@ -177,7 +177,7 @@ public class NoteFragment extends BaseFragment implements LoaderManager.LoaderCa
             case POST_ADD_NOTE:
                 AddNoteResultModel addNoteResultModel = (AddNoteResultModel) baseResultModel;
                 if (addNoteResultModel.isAdded()) {
-                    showMessageInToast(getString(R.string.text_note_saved));
+                    showMessageInToast(getString(R.string.text_note_added));
                    // getActivity().finish();
                    // getFragmentManager().popBackStack();
                 }

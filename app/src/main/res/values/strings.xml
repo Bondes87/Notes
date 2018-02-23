@@ -5,7 +5,7 @@
     <string name="error_loading_data">Error loading data</string>
     <string name="text_delete_note">Delete note</string>
     <string name="text_save_note">Save note</string>
-    <string name="text_note_saved">Note was saved</string>
+    <string name="text_note_added">Note was added</string>
     <string name="text_note_deleted">Note was deleted</string>
     <string name="text_note_updated">Note was updated</string>
     <string name="error_note_is_empty">Note must not be empty.</string>

@@ -10,9 +10,11 @@ import com.dbondarenko.shpp.notes.api.ApiService;
 import com.dbondarenko.shpp.notes.api.RetrofitHelper;
 import com.dbondarenko.shpp.notes.api.request.AddNoteRequest;
 import com.dbondarenko.shpp.notes.api.request.GetNotesRequest;
+import com.dbondarenko.shpp.notes.api.request.UpdateNoteRequest;
 import com.dbondarenko.shpp.notes.api.request.base.BaseRequest;
 import com.dbondarenko.shpp.notes.api.response.AddNoteResponse;
 import com.dbondarenko.shpp.notes.api.response.GetNotesResponse;
+import com.dbondarenko.shpp.notes.api.response.UpdateNoteResponse;
 import com.dbondarenko.shpp.notes.models.NoteModel;
 
 import retrofit2.Retrofit;
@@ -59,6 +61,9 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
                 case POST_ADD_NOTE:
                     return getApiLoaderAddNoteResponse(apiService);
 
+                case PUT_UPDATE_NOTE:
+                    return gerApiLoaderUpdateNoteResponse(apiService);
+
                 default:
                     return null;
             }
@@ -71,6 +76,21 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
     public void onStopLoading() {
         Log.d(TAG, "onStopLoading()");
         cancelLoad();
+    }
+
+    private ApiLoaderResponse gerApiLoaderUpdateNoteResponse(ApiService apiService) {
+        Log.d(TAG, "gerApiLoaderUpdateNoteResponse() " + apiService);
+        ApiLoaderResponse<UpdateNoteResponse> apiLoaderUpdateNoteResponse= new ApiLoaderResponse<>();
+        apiLoaderUpdateNoteResponse.setApiName(baseRequest.getApiName());
+        UpdateNoteRequest updateNoteRequest = (UpdateNoteRequest) baseRequest;
+        NoteModel note = updateNoteRequest.getRequestModel().getNote();
+        try {
+            apiLoaderUpdateNoteResponse.setResponse(apiService.updateNote(note).execute());
+        } catch (Exception e) {
+            e.printStackTrace();
+            apiLoaderUpdateNoteResponse.setException(e);
+        }
+        return apiLoaderUpdateNoteResponse;
     }
 
     private ApiLoaderResponse getApiLoaderAddNoteResponse(ApiService apiService) {

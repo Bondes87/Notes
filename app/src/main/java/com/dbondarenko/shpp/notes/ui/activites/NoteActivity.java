@@ -21,9 +21,12 @@ import com.dbondarenko.shpp.notes.R;
 import com.dbondarenko.shpp.notes.api.ApiLoaderResponse;
 import com.dbondarenko.shpp.notes.api.ApiName;
 import com.dbondarenko.shpp.notes.api.request.AddNoteRequest;
+import com.dbondarenko.shpp.notes.api.request.UpdateNoteRequest;
 import com.dbondarenko.shpp.notes.api.request.base.BaseRequest;
 import com.dbondarenko.shpp.notes.api.request.models.AddNoteRequestModel;
+import com.dbondarenko.shpp.notes.api.request.models.UpdateNoteRequestModel;
 import com.dbondarenko.shpp.notes.api.response.model.AddNoteResultModel;
+import com.dbondarenko.shpp.notes.api.response.model.UpdateNoteResultModel;
 import com.dbondarenko.shpp.notes.api.response.model.base.BaseErrorModel;
 import com.dbondarenko.shpp.notes.api.response.model.base.BaseResultModel;
 import com.dbondarenko.shpp.notes.models.NoteModel;
@@ -142,11 +145,17 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
             case POST_ADD_NOTE:
                 AddNoteResultModel addNoteResultModel = (AddNoteResultModel) baseResultModel;
                 if (addNoteResultModel.isAdded()) {
-                    showMessageInToast(getString(R.string.text_note_saved));
-                    finish();
+                    showMessageInToast(getString(R.string.text_note_added));
+                }
+                break;
+            case PUT_UPDATE_NOTE:
+                UpdateNoteResultModel updateNoteResultModel = (UpdateNoteResultModel) baseResultModel;
+                if (updateNoteResultModel.isUpdated()) {
+                    showMessageInToast(getString(R.string.text_note_updated));
                 }
                 break;
         }
+        finish();
     }
 
     @Override
@@ -184,7 +193,9 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
             return new AddNoteRequest(new AddNoteRequestModel(
                     new NoteModel(datetime, message)));
         } else {
-            return null;
+            return new UpdateNoteRequest(new UpdateNoteRequestModel(
+                    new NoteModel(note.getDatetime(), message)
+            ));
         }
     }
 
