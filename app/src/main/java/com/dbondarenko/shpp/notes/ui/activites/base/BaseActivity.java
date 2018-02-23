@@ -1,8 +1,14 @@
 package com.dbondarenko.shpp.notes.ui.activites.base;
 
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+
+import com.dbondarenko.shpp.notes.api.ApiName;
+import com.dbondarenko.shpp.notes.api.response.model.base.BaseErrorModel;
+import com.dbondarenko.shpp.notes.api.response.model.base.BaseResultModel;
 
 /**
  * File: BaseActivity.java
@@ -21,6 +27,10 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     public abstract int getContentViewResourceId();
+
+    public abstract void handleSuccessResult(ApiName apiName, BaseResultModel baseResultModel);
+
+    public abstract void handleFailureResult(BaseErrorModel baseErrorModel);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,5 +67,15 @@ public abstract class BaseActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
+    }
+
+    public void showMessageInSnackbar(View view, String message) {
+        Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE)
+                .setAction(android.R.string.ok, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                });
+        snackbar.show();
     }
 }

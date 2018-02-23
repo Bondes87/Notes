@@ -180,11 +180,7 @@ public class NotesListFragment extends BaseFragment implements View.OnClickListe
 
     private void showNoteFragment(NoteFragment noteFragment) {
         Log.d(TAG, "showNoteFragment()");
-        getFragmentManager()
-                .beginTransaction()
-                .replace(R.id.frameLayoutContainerForContent, noteFragment)
-                .addToBackStack(null)
-                .commit();
+
     }
 
     private void initActionBar() {
