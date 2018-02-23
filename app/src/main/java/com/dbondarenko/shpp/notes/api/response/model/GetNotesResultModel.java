@@ -21,14 +21,23 @@ public class GetNotesResultModel extends BaseResultModel {
     @Expose
     private List<NoteModel> notes;
 
+    @SerializedName("totalAmountOfNotesOnServer")
+    @Expose
+    private int totalAmountOfNotesOnServer;
+
     public GetNotesResultModel() {
     }
 
-    public GetNotesResultModel(List<NoteModel> notes) {
+    public GetNotesResultModel(List<NoteModel> notes, int totalAmountOfNotesOnServer) {
         this.notes = notes;
+        this.totalAmountOfNotesOnServer = totalAmountOfNotesOnServer;
     }
 
     public List<NoteModel> getNotes() {
         return notes;
+    }
+
+    public int getTotalAmountOfNotesOnServer() {
+        return totalAmountOfNotesOnServer;
     }
 }

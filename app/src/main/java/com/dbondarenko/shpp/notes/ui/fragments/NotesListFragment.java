@@ -42,6 +42,8 @@ public class NotesListFragment extends BaseFragment implements View.OnClickListe
 
     private NoteAdapter noteAdapter;
 
+    private int totalAmountOfNotesOnServer;
+
     public NotesListFragment() {
     }
 
@@ -156,6 +158,10 @@ public class NotesListFragment extends BaseFragment implements View.OnClickListe
                 if (getNotesResultModel.getNotes() != null) {
                     noteAdapter.addNotes(getNotesResultModel.getNotes());
                 }
+                totalAmountOfNotesOnServer = getNotesResultModel.getTotalAmountOfNotesOnServer();
+                if (totalAmountOfNotesOnServer == 0) {
+                    textViewNoNotes.setVisibility(View.VISIBLE);
+                }
                 break;
         }
     }
@@ -203,6 +209,8 @@ public class NotesListFragment extends BaseFragment implements View.OnClickListe
                     NotesListFragment.this);
             progressBarNotesLoading.setVisibility(View.VISIBLE);
             initLoader();
+        } else {
+            noteAdapter.checkListForEmptiness();
         }
     }
 

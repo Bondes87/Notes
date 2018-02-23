@@ -94,7 +94,7 @@ public class NoteAdapter extends
         return notesList.get(notePosition);
     }
 
-    private void checkListForEmptiness() {
+    public void checkListForEmptiness() {
         onEmptyListListener.onEmptyList(notesList.size() == 0);
     }
 

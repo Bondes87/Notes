@@ -63,10 +63,7 @@ public class NoteModelEndpoint {
             path = "getAllNotes")
     public ApiResponse getAllNotes() {
         logger.info("Calling getAllNotes method.");
-        if (notesList.size() == 0) {
-            return new ApiResponse(new Error("List of notes is empty."));
-        }
-        return new ApiResponse(new GetNotesResult(notesList));
+        return new ApiResponse(new GetNotesResult(notesList, notesList.size()));
     }
 
     @ApiMethod(name = "getNotes",
@@ -74,14 +71,11 @@ public class NoteModelEndpoint {
             path = "getNotes")
     public ApiResponse getNotes(@Named("startPosition") int startPosition, @Named("amount") int amount) {
         logger.info("Calling getNotes method.");
-        if (notesList.size() == 0) {
-            return new ApiResponse(new Error("List of notes is empty."));
-        }
         if (startPosition < 0 || amount < 0) {
             return new ApiResponse(new Error("One of the specified parameters is less than 0."));
         }
         if (startPosition == notesList.size()) {
-            return new ApiResponse(new GetNotesResult(new ArrayList<NoteModel>()));
+            return new ApiResponse(new GetNotesResult(new ArrayList<NoteModel>(), notesList.size()));
         }
         if (startPosition > notesList.size()) {
             return new ApiResponse(new Error("Starting position is longer for the length of the list."));
@@ -91,9 +85,10 @@ public class NoteModelEndpoint {
         }
         int endPosition = startPosition + amount;
         if (endPosition > notesList.size()) {
-            return new ApiResponse(new GetNotesResult(notesList.subList(startPosition, notesList.size())));
+            return new ApiResponse(new GetNotesResult(notesList.subList(startPosition, notesList.size()),
+                    notesList.size()));
         }
-        return new ApiResponse(new GetNotesResult(notesList.subList(startPosition, endPosition)));
+        return new ApiResponse(new GetNotesResult(notesList.subList(startPosition, endPosition), notesList.size()));
     }
 
     @ApiMethod(name = "getCountNotes",
