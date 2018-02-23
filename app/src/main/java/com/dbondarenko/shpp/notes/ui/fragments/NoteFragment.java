@@ -178,8 +178,8 @@ public class NoteFragment extends BaseFragment implements LoaderManager.LoaderCa
                 AddNoteResultModel addNoteResultModel = (AddNoteResultModel) baseResultModel;
                 if (addNoteResultModel.isAdded()) {
                     showMessageInToast(getString(R.string.text_note_saved));
-                    getActivity().finish();
-                    getFragmentManager().popBackStack();
+                   // getActivity().finish();
+                   // getFragmentManager().popBackStack();
                 }
                 break;
         }
