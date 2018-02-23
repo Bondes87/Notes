@@ -37,5 +37,5 @@ public interface ApiService {
     Call<UpdateNoteResponse> updateNote(@Body NoteModel note);
 
     @DELETE("/_ah/api/notes/v1/deleteNote")
-    Call<DeleteNoteResponse> deleteNote(@Query("datetime") int datetime);
+    Call<DeleteNoteResponse> deleteNote(@Query("datetime") long datetime);
 }

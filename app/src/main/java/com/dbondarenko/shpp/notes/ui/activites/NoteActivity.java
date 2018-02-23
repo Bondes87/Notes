@@ -21,11 +21,14 @@ import com.dbondarenko.shpp.notes.R;
 import com.dbondarenko.shpp.notes.api.ApiLoaderResponse;
 import com.dbondarenko.shpp.notes.api.ApiName;
 import com.dbondarenko.shpp.notes.api.request.AddNoteRequest;
+import com.dbondarenko.shpp.notes.api.request.DeleteNoteRequest;
 import com.dbondarenko.shpp.notes.api.request.UpdateNoteRequest;
 import com.dbondarenko.shpp.notes.api.request.base.BaseRequest;
 import com.dbondarenko.shpp.notes.api.request.models.AddNoteRequestModel;
+import com.dbondarenko.shpp.notes.api.request.models.DeleteNoteRequestModel;
 import com.dbondarenko.shpp.notes.api.request.models.UpdateNoteRequestModel;
 import com.dbondarenko.shpp.notes.api.response.model.AddNoteResultModel;
+import com.dbondarenko.shpp.notes.api.response.model.DeleteNoteResultModel;
 import com.dbondarenko.shpp.notes.api.response.model.UpdateNoteResultModel;
 import com.dbondarenko.shpp.notes.api.response.model.base.BaseErrorModel;
 import com.dbondarenko.shpp.notes.api.response.model.base.BaseResultModel;
@@ -87,7 +90,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
                 return true;
             case R.id.itemDeleteNote:
                 hideSoftKeyboard();
-                // showDeleteNoteDialogFragment();
+                deleteNote(bundle);
                 return true;
             case android.R.id.home:
                 hideSoftKeyboard();
@@ -142,16 +145,25 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
     public void handleSuccessResult(ApiName apiName, BaseResultModel baseResultModel) {
         Log.d(TAG, "handleSuccessResult()");
         switch (apiName) {
+
             case POST_ADD_NOTE:
                 AddNoteResultModel addNoteResultModel = (AddNoteResultModel) baseResultModel;
                 if (addNoteResultModel.isAdded()) {
                     showMessageInToast(getString(R.string.text_note_added));
                 }
                 break;
+
             case PUT_UPDATE_NOTE:
                 UpdateNoteResultModel updateNoteResultModel = (UpdateNoteResultModel) baseResultModel;
                 if (updateNoteResultModel.isUpdated()) {
                     showMessageInToast(getString(R.string.text_note_updated));
+                }
+                break;
+
+            case DELETE_DELETE_NOTE:
+                DeleteNoteResultModel deleteNoteResultModel = (DeleteNoteResultModel) baseResultModel;
+                if (deleteNoteResultModel.isDeleted()) {
+                    showMessageInToast(getString(R.string.text_note_deleted));
                 }
                 break;
         }
@@ -185,6 +197,15 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
         progressBarActionsWithNote.setVisibility(View.VISIBLE);
         bundle.putSerializable(Constants.KEY_REQUEST, getRequest(message));
         getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, bundle, this);
+    }
+
+    private void deleteNote(Bundle bundle) {
+        Log.d(TAG, "deleteNote()");
+        if (note != null) {
+            progressBarActionsWithNote.setVisibility(View.VISIBLE);
+            bundle.putSerializable(Constants.KEY_REQUEST, new DeleteNoteRequest(new DeleteNoteRequestModel(note.getDatetime())));
+            getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, bundle, this);
+        }
     }
 
     @NonNull

@@ -9,10 +9,12 @@ import com.dbondarenko.shpp.notes.api.ApiLoaderResponse;
 import com.dbondarenko.shpp.notes.api.ApiService;
 import com.dbondarenko.shpp.notes.api.RetrofitHelper;
 import com.dbondarenko.shpp.notes.api.request.AddNoteRequest;
+import com.dbondarenko.shpp.notes.api.request.DeleteNoteRequest;
 import com.dbondarenko.shpp.notes.api.request.GetNotesRequest;
 import com.dbondarenko.shpp.notes.api.request.UpdateNoteRequest;
 import com.dbondarenko.shpp.notes.api.request.base.BaseRequest;
 import com.dbondarenko.shpp.notes.api.response.AddNoteResponse;
+import com.dbondarenko.shpp.notes.api.response.DeleteNoteResponse;
 import com.dbondarenko.shpp.notes.api.response.GetNotesResponse;
 import com.dbondarenko.shpp.notes.api.response.UpdateNoteResponse;
 import com.dbondarenko.shpp.notes.models.NoteModel;
@@ -64,6 +66,9 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
                 case PUT_UPDATE_NOTE:
                     return gerApiLoaderUpdateNoteResponse(apiService);
 
+                case DELETE_DELETE_NOTE:
+                    return gerApiLoaderDeleteNoteResponse(apiService);
+
                 default:
                     return null;
             }
@@ -78,9 +83,24 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
         cancelLoad();
     }
 
+    private ApiLoaderResponse gerApiLoaderDeleteNoteResponse(ApiService apiService) {
+        Log.d(TAG, "gerApiLoaderDeleteNoteResponse() " + apiService);
+        ApiLoaderResponse<DeleteNoteResponse> apiLoaderDeleteNoteResponse = new ApiLoaderResponse<>();
+        apiLoaderDeleteNoteResponse.setApiName(baseRequest.getApiName());
+        DeleteNoteRequest deleteNoteRequest = (DeleteNoteRequest) baseRequest;
+        long datetime = deleteNoteRequest.getRequestModel().getDatetime();
+        try {
+            apiLoaderDeleteNoteResponse.setResponse(apiService.deleteNote(datetime).execute());
+        } catch (Exception e) {
+            e.printStackTrace();
+            apiLoaderDeleteNoteResponse.setException(e);
+        }
+        return apiLoaderDeleteNoteResponse;
+    }
+
     private ApiLoaderResponse gerApiLoaderUpdateNoteResponse(ApiService apiService) {
         Log.d(TAG, "gerApiLoaderUpdateNoteResponse() " + apiService);
-        ApiLoaderResponse<UpdateNoteResponse> apiLoaderUpdateNoteResponse= new ApiLoaderResponse<>();
+        ApiLoaderResponse<UpdateNoteResponse> apiLoaderUpdateNoteResponse = new ApiLoaderResponse<>();
         apiLoaderUpdateNoteResponse.setApiName(baseRequest.getApiName());
         UpdateNoteRequest updateNoteRequest = (UpdateNoteRequest) baseRequest;
         NoteModel note = updateNoteRequest.getRequestModel().getNote();
