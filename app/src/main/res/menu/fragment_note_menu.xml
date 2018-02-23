@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools">
+
+    <item
+        android:id="@+id/itemSaveNote"
+        android:icon="@mipmap/ic_action_save_note"
+        android:title="@string/text_save_note"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction"/>
+    <item
+        android:id="@+id/itemDeleteNote"
+        android:icon="@mipmap/ic_action_delete_note"
+        android:title="@string/text_delete_note"
+        app:showAsAction="always"/>
+</menu>

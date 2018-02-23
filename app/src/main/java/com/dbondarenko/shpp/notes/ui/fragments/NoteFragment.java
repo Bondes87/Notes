@@ -7,6 +7,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -71,6 +73,22 @@ public class NoteFragment extends BaseFragment {
         }
         editTextMessage.requestFocus();
         showSoftKeyboard();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        Log.d(TAG, "onCreateOptionsMenu()");
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_note_menu, menu);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        Log.d(TAG, "onPrepareOptionsMenu()");
+        super.onPrepareOptionsMenu(menu);
+        if (note == null) {
+            menu.findItem(R.id.itemDeleteNote).setVisible(false);
+        }
     }
 
     @Override
