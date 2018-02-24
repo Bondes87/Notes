@@ -25,6 +25,9 @@ public class Constants {
     // Identifiers for async task loaders
     public static final int LOADER_ID_API_SERVICE = 1;
 
+    // Tag for creating dialog fragment for confirmation to delete note.
+    public static final String TAG_OF_DELETE_NOTE_DIALOG_FRAGMENT = "DeleteNoteDialogFragment";
+
     public static final int REQUEST_CODE_NOTE_ACTIVITY = 101;
     public static final int RESULT_CODE_ADD_NOTE = 102;
     public static final int RESULT_CODE_UPDATE_NOTE = 103;

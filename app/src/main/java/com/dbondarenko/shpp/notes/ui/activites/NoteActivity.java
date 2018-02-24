@@ -35,12 +35,15 @@ import com.dbondarenko.shpp.notes.api.response.model.base.BaseErrorModel;
 import com.dbondarenko.shpp.notes.api.response.model.base.BaseResultModel;
 import com.dbondarenko.shpp.notes.models.NoteModel;
 import com.dbondarenko.shpp.notes.ui.activites.base.BaseActivity;
+import com.dbondarenko.shpp.notes.ui.fragments.DeleteNoteDialogFragment;
+import com.dbondarenko.shpp.notes.ui.listeners.OnResultDialogListener;
 import com.dbondarenko.shpp.notes.ui.loaders.ApiServiceAsyncTaskLoader;
 import com.dbondarenko.shpp.notes.utils.Util;
 
 import java.util.Calendar;
 
-public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<ApiLoaderResponse> {
+public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<ApiLoaderResponse>,
+        OnResultDialogListener {
 
     private EditText editTextMessage;
     private ProgressBar progressBarActionsWithNote;
@@ -93,7 +96,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
 
             case R.id.itemDeleteNote:
                 hideSoftKeyboard();
-                deleteNote();
+                showDeleteNoteDialogFragment();
                 return true;
 
             case android.R.id.home:
@@ -187,9 +190,29 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
     @Override
+    public void onDialogPositiveClicked() {
+        Log.d(TAG, "onDialogPositiveClicked()");
+        deleteNote();
+    }
+
+    @Override
+    public void onDialogNegativeClicked() {
+        Log.d(TAG, "onDialogNegativeClicked()");
+        showSoftKeyboard();
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        Log.d(TAG, "onSaveInstanceState()");
         outState.putSerializable(Constants.KEY_NOTE, new NoteModel(datetime, editTextMessage.getText().toString()));
+    }
+
+    private void showDeleteNoteDialogFragment() {
+        Log.d(TAG, "showDeleteNoteDialogFragment()");
+        DeleteNoteDialogFragment deleteNoteDialogFragmentFrag =
+                new DeleteNoteDialogFragment();
+        deleteNoteDialogFragmentFrag.show(getSupportFragmentManager(), Constants.TAG_OF_DELETE_NOTE_DIALOG_FRAGMENT);
     }
 
     private void returnResult(int resultCode) {
