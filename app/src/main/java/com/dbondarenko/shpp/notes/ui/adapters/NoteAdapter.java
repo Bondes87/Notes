@@ -5,8 +5,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.dbondarenko.shpp.notes.Constants;
 import com.dbondarenko.shpp.notes.R;
 import com.dbondarenko.shpp.notes.models.NoteModel;
 import com.dbondarenko.shpp.notes.ui.listeners.OnEmptyListListener;
@@ -25,13 +27,14 @@ import java.util.List;
  *         E-mail: bondes87@gmail.com
  */
 public class NoteAdapter extends
-        RecyclerView.Adapter<NoteAdapter.NoteHolder> {
+        RecyclerView.Adapter<NoteAdapter.BaseHolder> {
 
     private static final String TAG = NoteAdapter.class.getSimpleName();
 
     private OnListItemClickListener onListItemClickListener;
     private OnEmptyListListener onEmptyListListener;
     private List<NoteModel> notesList;
+    private boolean isEnabledFooter;
 
     public NoteAdapter(OnListItemClickListener onListItemClickListener,
                        OnEmptyListListener onEmptyListListener) {
@@ -41,26 +44,60 @@ public class NoteAdapter extends
     }
 
     @Override
-    public NoteHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public BaseHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Log.d(TAG, "onCreateViewHolder()");
-        View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.notes_list_item, parent, false);
-        return new NoteHolder(itemView, onListItemClickListener);
+        View itemView;
+        switch (viewType) {
+            case Constants.TYPE_ITEM:
+                itemView = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.notes_list_item, parent, false);
+                return new NoteHolder(itemView, onListItemClickListener);
+            case Constants.TYPE_FOOTER:
+                itemView = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.notes_list_footer, parent, false);
+                return new FooterHolder(itemView);
+        }
+        return null;
+    }
+
+    @Override
+    public void onBindViewHolder(BaseHolder holder, int position) {
+        Log.d(TAG, "onBindViewHolder()");
+        if (holder.getItemViewType() == Constants.TYPE_ITEM) {
+            NoteModel note = notesList.get(position);
+            ((NoteHolder) holder).textViewNoteMessage.setText(note.getMessage());
+            ((NoteHolder) holder).textViewNoteDate.setText(
+                    Util.getStringDate(note.getDatetime()));
+            ((NoteHolder) holder).textViewNoteTime.setText(
+                    Util.getStringTime(note.getDatetime()));
+        }
     }
 
     @Override
     public int getItemCount() {
         Log.d(TAG, "getItemCount()");
-        return notesList.size();
+        if (isEnabledFooter) {
+            return notesList.size() + 1;
+        } else {
+            return notesList.size();
+        }
     }
 
     @Override
-    public void onBindViewHolder(NoteHolder holder, int position) {
-        Log.d(TAG, "onBindViewHolder()");
-        NoteModel note = notesList.get(position);
-        holder.textViewNoteMessage.setText(note.getMessage());
-        holder.textViewNoteDate.setText(Util.getStringDate(note.getDatetime()));
-        holder.textViewNoteTime.setText(Util.getStringTime(note.getDatetime()));
+    public int getItemViewType(int position) {
+        if (isPositionFooter(position)) {
+            return Constants.TYPE_FOOTER;
+        }
+        return Constants.TYPE_ITEM;
+    }
+
+    public void setEnabledFooter(boolean isEnabled) {
+        if (isEnabled) {
+            notifyItemInserted(notesList.size());
+        } else {
+            notifyItemRemoved(notesList.size());
+        }
+        isEnabledFooter = isEnabled;
     }
 
     public void addNotes(List<NoteModel> notes) {
@@ -98,6 +135,9 @@ public class NoteAdapter extends
 
     public NoteModel getNote(int notePosition) {
         Log.d(TAG, "getNote() " + notePosition);
+        if (isEnabledFooter) {
+            return notesList.get(notePosition - 1);
+        }
         return notesList.get(notePosition);
     }
 
@@ -110,7 +150,23 @@ public class NoteAdapter extends
         onEmptyListListener.onEmptyList(notesList.size() == 0);
     }
 
-    public static class NoteHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private boolean isPositionFooter(int position) {
+        return position == notesList.size();
+    }
+
+    public static class BaseHolder extends RecyclerView.ViewHolder
+            implements View.OnClickListener {
+
+        BaseHolder(View itemView) {
+            super(itemView);
+        }
+
+        @Override
+        public void onClick(View v) {
+        }
+    }
+
+    public static class NoteHolder extends BaseHolder {
 
         private static final String TAG = NoteHolder.class.getSimpleName();
 
@@ -137,9 +193,28 @@ public class NoteAdapter extends
         }
 
         private void initViews(View itemView) {
+            Log.d(TAG, "initViews()");
             textViewNoteMessage = itemView.findViewById(R.id.textViewNoteMessage);
             textViewNoteDate = itemView.findViewById(R.id.textViewNoteDate);
             textViewNoteTime = itemView.findViewById(R.id.textViewNoteTime);
+        }
+    }
+
+    static class FooterHolder extends BaseHolder {
+
+        private static final String TAG = FooterHolder.class.getSimpleName();
+
+        ProgressBar progressBarNotesListFooter;
+
+        FooterHolder(View itemView) {
+            super(itemView);
+            Log.d(TAG, "FooterHolder()");
+            initViews(itemView);
+        }
+
+        private void initViews(View itemView) {
+            Log.d(TAG, "initViews()");
+            progressBarNotesListFooter = itemView.findViewById(R.id.progressBarNotesListFooter);
         }
     }
 }

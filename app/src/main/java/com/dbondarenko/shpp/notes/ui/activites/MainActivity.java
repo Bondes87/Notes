@@ -119,6 +119,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     public void onLoadFinished(Loader<ApiLoaderResponse> loader, ApiLoaderResponse data) {
         Log.d(TAG, "onLoadFinished()");
         progressBarNotesLoading.setVisibility(View.GONE);
+        noteAdapter.setEnabledFooter(false);
         if (data != null) {
             if (data.getResponseModel() != null) {
                 if (data.getResponseModel().getResult() != null) {
@@ -174,6 +175,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 switch (resultCode) {
 
                     case Constants.RESULT_CODE_ADD_NOTE:
+                        totalAmountOfNotesOnServer++;
                         noteAdapter.addNote((NoteModel) data.getSerializableExtra(Constants.KEY_NOTE));
                         break;
 
@@ -183,6 +185,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                         break;
 
                     case Constants.RESULT_CODE_DELETE_NOTE:
+                        totalAmountOfNotesOnServer--;
                         noteAdapter.deleteNote(data.getIntExtra(Constants.KEY_NOTE_POSITION, -1));
                         break;
                 }
@@ -235,7 +238,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         return new OnEndlessRecyclerScrollListener() {
             @Override
             public void onLoadMore() {
-                downloadNotes(noteAdapter.getItemCount());
+                if (totalAmountOfNotesOnServer > noteAdapter.getItemCount()) {
+                    downloadNotes(noteAdapter.getItemCount());
+                    noteAdapter.setEnabledFooter(true);
+                }
             }
 
             @Override
