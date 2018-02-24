@@ -176,6 +176,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
 
                     case Constants.RESULT_CODE_ADD_NOTE:
                         totalAmountOfNotesOnServer++;
+                        if (((LinearLayoutManager) recyclerViewNotesList.getLayoutManager())
+                                .findFirstCompletelyVisibleItemPosition() == 0) {
+                            recyclerViewNotesList.scrollToPosition(0);
+                        }
                         noteAdapter.addNote((NoteModel) data.getSerializableExtra(Constants.KEY_NOTE));
                         break;
 
