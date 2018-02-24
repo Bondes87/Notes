@@ -72,7 +72,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         Log.d(TAG, "onClick()");
         switch (v.getId()) {
             case R.id.floatingActionButtonAddNote:
-                startActivity(new Intent(this, NoteActivity.class));
+                startActivityForResult(new Intent(this, NoteActivity.class), Constants.REQUEST_CODE_NOTE_ACTIVITY);
         }
     }
 
@@ -92,7 +92,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         Intent intentToStartNoteActivity = new Intent(this, NoteActivity.class);
         intentToStartNoteActivity.putExtra(Constants.KEY_NOTE, noteAdapter.getNote(position));
         intentToStartNoteActivity.putExtra(Constants.KEY_NOTE_POSITION, position);
-        startActivity(intentToStartNoteActivity);
+        startActivityForResult(intentToStartNoteActivity, Constants.REQUEST_CODE_NOTE_ACTIVITY);
     }
 
     @Override
@@ -160,6 +160,32 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                     textViewNoNotes.setVisibility(View.VISIBLE);
                 }
                 break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case Constants.REQUEST_CODE_NOTE_ACTIVITY:
+                switch (resultCode) {
+
+                    case Constants.RESULT_CODE_ADD_NOTE:
+                        noteAdapter.addNote((NoteModel) data.getSerializableExtra(Constants.KEY_NOTE));
+                        break;
+
+                    case Constants.RESULT_CODE_UPDATE_NOTE:
+                        noteAdapter.updateNote((NoteModel) data.getSerializableExtra(Constants.KEY_NOTE),
+                                data.getIntExtra(Constants.KEY_NOTE_POSITION, -1));
+                        break;
+
+                    case Constants.RESULT_CODE_DELETE_NOTE:
+                        noteAdapter.deleteNote(data.getIntExtra(Constants.KEY_NOTE_POSITION, -1));
+                        break;
+                }
+                break;
+
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
         }
     }
 

@@ -1,6 +1,7 @@
 package com.dbondarenko.shpp.notes.ui.activites;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
@@ -69,7 +70,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.fragment_note_menu, menu);
-        if (note == null) {
+        if (notePosition == -1) {
             menu.findItem(R.id.itemDeleteNote).setVisible(false);
         }
         return true;
@@ -79,24 +80,27 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.d(TAG, "onOptionsItemSelected()");
         String message = editTextMessage.getText().toString();
-        Bundle bundle = new Bundle();
         switch (item.getItemId()) {
+
             case R.id.itemSaveNote:
                 if (TextUtils.isEmpty(message)) {
                     showMessageInSnackbar(editTextMessage, getString(R.string.error_note_is_empty));
                     return true;
                 }
                 hideSoftKeyboard();
-                saveNote(message, bundle);
+                saveNote(message);
                 return true;
+
             case R.id.itemDeleteNote:
                 hideSoftKeyboard();
-                deleteNote(bundle);
+                deleteNote();
                 return true;
+
             case android.R.id.home:
                 hideSoftKeyboard();
                 onBackPressed();
                 return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -151,6 +155,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
                 AddNoteResultModel addNoteResultModel = (AddNoteResultModel) baseResultModel;
                 if (addNoteResultModel.isAdded()) {
                     showMessageInToast(getString(R.string.text_note_added));
+                    returnResult(Constants.RESULT_CODE_ADD_NOTE);
                 }
                 break;
 
@@ -158,6 +163,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
                 UpdateNoteResultModel updateNoteResultModel = (UpdateNoteResultModel) baseResultModel;
                 if (updateNoteResultModel.isUpdated()) {
                     showMessageInToast(getString(R.string.text_note_updated));
+                    returnResult(Constants.RESULT_CODE_UPDATE_NOTE);
                 }
                 break;
 
@@ -165,10 +171,10 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
                 DeleteNoteResultModel deleteNoteResultModel = (DeleteNoteResultModel) baseResultModel;
                 if (deleteNoteResultModel.isDeleted()) {
                     showMessageInToast(getString(R.string.text_note_deleted));
+                    returnResult(Constants.RESULT_CODE_DELETE_NOTE);
                 }
                 break;
         }
-        finish();
     }
 
     @Override
@@ -186,13 +192,21 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
         outState.putSerializable(Constants.KEY_NOTE, new NoteModel(datetime, editTextMessage.getText().toString()));
     }
 
+    private void returnResult(int resultCode) {
+        Intent intent = new Intent();
+        intent.putExtra(Constants.KEY_NOTE, note);
+        intent.putExtra(Constants.KEY_NOTE_POSITION, notePosition);
+        setResult(resultCode, intent);
+        finish();
+    }
+
     private void fillViews() {
         if (note != null) {
             datetime = note.getDatetime();
             editTextMessage.setText(note.getMessage());
+            editTextMessage.setSelection(note.getMessage().length());
         } else {
             datetime = Calendar.getInstance().getTimeInMillis();
-
         }
         setActionBarTitle(Util.getStringDatetime(datetime));
     }
@@ -201,14 +215,16 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
-    private void saveNote(String message, Bundle bundle) {
+    private void saveNote(String message) {
+        Bundle bundle = new Bundle();
         progressBarActionsWithNote.setVisibility(View.VISIBLE);
         bundle.putSerializable(Constants.KEY_REQUEST, getRequest(message));
         getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, bundle, this);
     }
 
-    private void deleteNote(Bundle bundle) {
+    private void deleteNote() {
         Log.d(TAG, "deleteNote()");
+        Bundle bundle = new Bundle();
         if (note != null) {
             progressBarActionsWithNote.setVisibility(View.VISIBLE);
             bundle.putSerializable(Constants.KEY_REQUEST, new DeleteNoteRequest(new DeleteNoteRequestModel(note
@@ -219,13 +235,12 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     @NonNull
     private BaseRequest getRequest(String message) {
-        if (note == null) {
-            return new AddNoteRequest(new AddNoteRequestModel(
-                    new NoteModel(datetime, message)));
+        if (notePosition == -1) {
+            note = new NoteModel(datetime, message);
+            return new AddNoteRequest(new AddNoteRequestModel(note));
         } else {
-            return new UpdateNoteRequest(new UpdateNoteRequestModel(
-                    new NoteModel(note.getDatetime(), message)
-            ));
+            note.setMessage(message);
+            return new UpdateNoteRequest(new UpdateNoteRequestModel(note));
         }
     }
 

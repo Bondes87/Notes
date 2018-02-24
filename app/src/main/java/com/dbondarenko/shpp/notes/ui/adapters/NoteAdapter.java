@@ -71,26 +71,33 @@ public class NoteAdapter extends
     }
 
     public void addNote(NoteModel note) {
-        Log.d(TAG, "addNote()");
+        Log.d(TAG, "addNote() " + note);
         addNote(note, 0);
     }
 
     public void addNote(NoteModel note, int notePosition) {
-        Log.d(TAG, "addNote()");
+        Log.d(TAG, "addNote(): " + note + ", " + notePosition);
         notesList.add(notePosition, note);
         notifyItemInserted(notePosition);
         checkListForEmptiness();
     }
 
     public void deleteNote(int notePosition) {
-        Log.d(TAG, "deleteNote()");
+        Log.d(TAG, "deleteNote() " + notePosition);
         notesList.remove(notePosition);
         notifyItemRemoved(notePosition);
         checkListForEmptiness();
     }
 
+    public void updateNote(NoteModel note, int notePosition) {
+        Log.d(TAG, "updateNote(): " + note + ", " + notePosition);
+        NoteModel oldNote = getNote(notePosition);
+        oldNote.setMessage(note.getMessage());
+        notifyItemChanged(notePosition);
+    }
+
     public NoteModel getNote(int notePosition) {
-        Log.d(TAG, "getNote()");
+        Log.d(TAG, "getNote() " + notePosition);
         return notesList.get(notePosition);
     }
 
