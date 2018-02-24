@@ -6,6 +6,8 @@ import android.os.Parcelable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * File: NoteModel.java
  *
@@ -14,20 +16,7 @@ import com.google.gson.annotations.SerializedName;
  *         Time: 18:41
  *         E-mail: bondes87@gmail.com
  */
-public class NoteModel implements Parcelable {
-
-    public static final Parcelable.Creator<NoteModel> CREATOR =
-            new Parcelable.Creator<NoteModel>() {
-                @Override
-                public NoteModel createFromParcel(Parcel source) {
-                    return new NoteModel(source);
-                }
-
-                @Override
-                public NoteModel[] newArray(int size) {
-                    return new NoteModel[size];
-                }
-            };
+public class NoteModel implements Serializable {
 
     @SerializedName("datetime")
     @Expose
@@ -43,11 +32,6 @@ public class NoteModel implements Parcelable {
     public NoteModel(long datetime, String message) {
         this.datetime = datetime;
         this.message = message;
-    }
-
-    protected NoteModel(Parcel in) {
-        this.datetime = in.readLong();
-        this.message = in.readString();
     }
 
     @Override
@@ -71,17 +55,6 @@ public class NoteModel implements Parcelable {
                 "datetime=" + datetime +
                 ", message='" + message + '\'' +
                 '}';
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(this.datetime);
-        dest.writeString(this.message);
     }
 
     public long getDatetime() {

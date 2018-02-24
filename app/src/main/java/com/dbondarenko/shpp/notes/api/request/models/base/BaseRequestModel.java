@@ -1,6 +1,6 @@
 package com.dbondarenko.shpp.notes.api.request.models.base;
 
-import android.os.Parcelable;
+import java.io.Serializable;
 
 /**
  * File: BaseRequestModel.java
@@ -10,5 +10,5 @@ import android.os.Parcelable;
  *         Time: 9:35
  *         E-mail: bondes87@gmail.com
  */
-public abstract class BaseRequestModel implements Parcelable {
+public abstract class BaseRequestModel implements Serializable {
 }

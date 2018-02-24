@@ -94,6 +94,11 @@ public class NoteAdapter extends
         return notesList.get(notePosition);
     }
 
+    public List<NoteModel> getNotes() {
+        Log.d(TAG, "getNotes()");
+        return notesList;
+    }
+
     public void checkListForEmptiness() {
         onEmptyListListener.onEmptyList(notesList.size() == 0);
     }

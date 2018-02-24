@@ -1,7 +1,5 @@
 package com.dbondarenko.shpp.notes.api.request.models;
 
-import android.os.Parcel;
-
 import com.dbondarenko.shpp.notes.api.request.models.base.BaseRequestModel;
 import com.dbondarenko.shpp.notes.models.NoteModel;
 
@@ -15,37 +13,10 @@ import com.dbondarenko.shpp.notes.models.NoteModel;
  */
 public class AddNoteRequestModel extends BaseRequestModel {
 
-    public static final Creator<AddNoteRequestModel> CREATOR =
-            new Creator<AddNoteRequestModel>() {
-                @Override
-                public AddNoteRequestModel createFromParcel(Parcel source) {
-                    return new AddNoteRequestModel(source);
-                }
-
-                @Override
-                public AddNoteRequestModel[] newArray(int size) {
-                    return new AddNoteRequestModel[size];
-                }
-            };
-
     private NoteModel note;
 
     public AddNoteRequestModel(NoteModel note) {
         this.note = note;
-    }
-
-    protected AddNoteRequestModel(Parcel in) {
-        this.note = in.readParcelable(NoteModel.class.getClassLoader());
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(this.note, flags);
     }
 
     public NoteModel getNote() {

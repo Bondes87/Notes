@@ -14,37 +14,10 @@ import com.dbondarenko.shpp.notes.api.request.models.base.BaseRequestModel;
  */
 public class DeleteNoteRequestModel extends BaseRequestModel {
 
-    public static final Creator<DeleteNoteRequestModel> CREATOR =
-            new Creator<DeleteNoteRequestModel>() {
-                @Override
-                public DeleteNoteRequestModel createFromParcel(Parcel source) {
-                    return new DeleteNoteRequestModel(source);
-                }
-
-                @Override
-                public DeleteNoteRequestModel[] newArray(int size) {
-                    return new DeleteNoteRequestModel[size];
-                }
-            };
-
     private long datetime;
 
     public DeleteNoteRequestModel(long datetime) {
         this.datetime = datetime;
-    }
-
-    protected DeleteNoteRequestModel(Parcel in) {
-        this.datetime = in.readLong();
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(this.datetime);
     }
 
     public long getDatetime() {

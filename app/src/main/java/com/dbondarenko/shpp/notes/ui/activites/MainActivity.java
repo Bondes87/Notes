@@ -24,6 +24,7 @@ import com.dbondarenko.shpp.notes.api.request.models.GetNotesRequestModel;
 import com.dbondarenko.shpp.notes.api.response.model.GetNotesResultModel;
 import com.dbondarenko.shpp.notes.api.response.model.base.BaseErrorModel;
 import com.dbondarenko.shpp.notes.api.response.model.base.BaseResultModel;
+import com.dbondarenko.shpp.notes.models.NoteModel;
 import com.dbondarenko.shpp.notes.ui.activites.base.BaseActivity;
 import com.dbondarenko.shpp.notes.ui.adapters.NoteAdapter;
 import com.dbondarenko.shpp.notes.ui.listeners.OnEmptyListListener;
@@ -31,8 +32,12 @@ import com.dbondarenko.shpp.notes.ui.listeners.OnListItemClickListener;
 import com.dbondarenko.shpp.notes.ui.loaders.ApiServiceAsyncTaskLoader;
 import com.dbondarenko.shpp.notes.ui.widgets.MarginDecoration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends BaseActivity implements View.OnClickListener,
         OnEmptyListListener, OnListItemClickListener, LoaderManager.LoaderCallbacks<ApiLoaderResponse> {
+
 
     private FloatingActionButton floatingActionButtonAddNote;
     private RecyclerView recyclerViewNotesList;
@@ -48,12 +53,18 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         return R.layout.activity_main;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initViews();
         initActionBar();
-        initRecyclerView();
+        if (savedInstanceState != null) {
+            initRecyclerView((ArrayList<NoteModel>) savedInstanceState.getSerializable(Constants.KEY_NOTES_LIST));
+            totalAmountOfNotesOnServer = savedInstanceState.getInt(Constants.KEY_TOTAL_AMOUNT_OF_NOTES_ON_SERVER);
+        } else {
+            initRecyclerView(null);
+        }
     }
 
     @Override
@@ -152,6 +163,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         }
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d(TAG, "onSaveInstanceState()");
+        outState.putSerializable(Constants.KEY_NOTES_LIST, (ArrayList<NoteModel>) noteAdapter.getNotes());
+        outState.putInt(Constants.KEY_TOTAL_AMOUNT_OF_NOTES_ON_SERVER, totalAmountOfNotesOnServer);
+    }
+
     private void initViews() {
         Log.d(TAG, "initViews()");
         floatingActionButtonAddNote = findViewById(R.id.floatingActionButtonAddNote);
@@ -170,23 +189,24 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         }
     }
 
-    private void initRecyclerView() {
+    private void initRecyclerView(List<NoteModel> notesList) {
         Log.d(TAG, "initRecyclerView()");
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerViewNotesList.setLayoutManager(linearLayoutManager);
         recyclerViewNotesList.setItemAnimator(new DefaultItemAnimator());
         recyclerViewNotesList.addItemDecoration(new MarginDecoration(getApplicationContext()));
-        initRecyclerViewAdapter();
+        initRecyclerViewAdapter(notesList);
         recyclerViewNotesList.setAdapter(noteAdapter);
     }
 
-    private void initRecyclerViewAdapter() {
+    private void initRecyclerViewAdapter(List<NoteModel> notesList) {
         Log.d(TAG, "initRecyclerViewAdapter()");
-        if (noteAdapter == null) {
-            noteAdapter = new NoteAdapter(this, this);
+        noteAdapter = new NoteAdapter(this, this);
+        if (notesList == null) {
             progressBarNotesLoading.setVisibility(View.VISIBLE);
             initLoader();
         } else {
+            noteAdapter.addNotes(notesList);
             noteAdapter.checkListForEmptiness();
         }
     }
@@ -195,6 +215,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         Log.d(TAG, "initLoader()");
         Bundle bundle = new Bundle();
         bundle.putInt(Constants.KEY_START_NOTE_POSITION, noteAdapter.getItemCount());
-        getSupportLoaderManager().initLoader(Constants.LOADER_ID_API_SERVICE, bundle, this);
+        getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, bundle, this);
     }
 }

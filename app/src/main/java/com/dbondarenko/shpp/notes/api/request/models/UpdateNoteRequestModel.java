@@ -15,19 +15,6 @@ import com.dbondarenko.shpp.notes.models.NoteModel;
  */
 public class UpdateNoteRequestModel extends BaseRequestModel {
 
-    public static final Creator<UpdateNoteRequestModel> CREATOR =
-            new Creator<UpdateNoteRequestModel>() {
-                @Override
-                public UpdateNoteRequestModel createFromParcel(Parcel source) {
-                    return new UpdateNoteRequestModel(source);
-                }
-
-                @Override
-                public UpdateNoteRequestModel[] newArray(int size) {
-                    return new UpdateNoteRequestModel[size];
-                }
-            };
-
     private NoteModel note;
 
     public UpdateNoteRequestModel(NoteModel note) {
@@ -36,16 +23,6 @@ public class UpdateNoteRequestModel extends BaseRequestModel {
 
     protected UpdateNoteRequestModel(Parcel in) {
         this.note = in.readParcelable(NoteModel.class.getClassLoader());
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(this.note, flags);
     }
 
     public NoteModel getNote() {

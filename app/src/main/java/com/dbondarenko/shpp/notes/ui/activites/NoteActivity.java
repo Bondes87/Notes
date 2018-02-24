@@ -56,9 +56,10 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getIntent() != null) {
-            note = getIntent().getParcelableExtra(Constants.KEY_NOTE);
-            notePosition = getIntent().getIntExtra(Constants.KEY_NOTE_POSITION, -1);
+        note = (NoteModel) getIntent().getSerializableExtra(Constants.KEY_NOTE);
+        notePosition = getIntent().getIntExtra(Constants.KEY_NOTE_POSITION, -1);
+        if (savedInstanceState != null) {
+            note = (NoteModel) savedInstanceState.getSerializable(Constants.KEY_NOTE);
         }
         initViews();
         fillViews();
@@ -179,14 +180,21 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
         }
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(Constants.KEY_NOTE, new NoteModel(datetime, editTextMessage.getText().toString()));
+    }
+
     private void fillViews() {
         if (note != null) {
-            setActionBarTitle(Util.getStringDatetime(note.getDatetime()));
+            datetime = note.getDatetime();
             editTextMessage.setText(note.getMessage());
         } else {
             datetime = Calendar.getInstance().getTimeInMillis();
-            setActionBarTitle(Util.getStringDatetime(datetime));
+
         }
+        setActionBarTitle(Util.getStringDatetime(datetime));
     }
 
     private void showMessageInToast(String message) {
@@ -203,7 +211,8 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
         Log.d(TAG, "deleteNote()");
         if (note != null) {
             progressBarActionsWithNote.setVisibility(View.VISIBLE);
-            bundle.putSerializable(Constants.KEY_REQUEST, new DeleteNoteRequest(new DeleteNoteRequestModel(note.getDatetime())));
+            bundle.putSerializable(Constants.KEY_REQUEST, new DeleteNoteRequest(new DeleteNoteRequestModel(note
+                    .getDatetime())));
             getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, bundle, this);
         }
     }
