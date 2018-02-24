@@ -2,6 +2,7 @@ package com.dbondarenko.shpp.notes.ui.activites;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -12,6 +13,8 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -28,6 +31,7 @@ import com.dbondarenko.shpp.notes.models.NoteModel;
 import com.dbondarenko.shpp.notes.ui.activites.base.BaseActivity;
 import com.dbondarenko.shpp.notes.ui.adapters.NoteAdapter;
 import com.dbondarenko.shpp.notes.ui.listeners.OnEmptyListListener;
+import com.dbondarenko.shpp.notes.ui.listeners.OnEndlessRecyclerScrollListener;
 import com.dbondarenko.shpp.notes.ui.listeners.OnListItemClickListener;
 import com.dbondarenko.shpp.notes.ui.loaders.ApiServiceAsyncTaskLoader;
 import com.dbondarenko.shpp.notes.ui.widgets.MarginDecoration;
@@ -104,7 +108,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                     return new ApiServiceAsyncTaskLoader(getApplicationContext(),
                             new GetNotesRequest(new GetNotesRequestModel(
                                     args.getInt(Constants.KEY_START_NOTE_POSITION),
-                                    Constants.AMOUNT_OF_NOTES_TO_DOWNLOAD)));
+                                    Constants.MAXIMUM_COUNT_OF_NOTES_TO_LOAD)));
                 }
             default:
                 return null;
@@ -223,6 +227,35 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         recyclerViewNotesList.addItemDecoration(new MarginDecoration(getApplicationContext()));
         initRecyclerViewAdapter(notesList);
         recyclerViewNotesList.setAdapter(noteAdapter);
+        recyclerViewNotesList.addOnScrollListener(getEndlessRecyclerScrollListener());
+    }
+
+    @NonNull
+    private OnEndlessRecyclerScrollListener getEndlessRecyclerScrollListener() {
+        return new OnEndlessRecyclerScrollListener() {
+            @Override
+            public void onLoadMore() {
+                downloadNotes(noteAdapter.getItemCount());
+            }
+
+            @Override
+            public void showFloatingActionButtonAddNote() {
+                floatingActionButtonAddNote.animate()
+                        .translationY(0)
+                        .alpha(1)
+                        .setInterpolator(new DecelerateInterpolator())
+                        .start();
+            }
+
+            @Override
+            public void hideFloatingActionButtonAddNote() {
+                floatingActionButtonAddNote.animate()
+                        .y(((View) floatingActionButtonAddNote.getParent()).getHeight())
+                        .alpha(0)
+                        .setInterpolator(new AccelerateInterpolator())
+                        .start();
+            }
+        };
     }
 
     private void initRecyclerViewAdapter(List<NoteModel> notesList) {
@@ -239,8 +272,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
 
     private void initLoader() {
         Log.d(TAG, "initLoader()");
+        downloadNotes(0);
+    }
+
+    private void downloadNotes(int startPosition) {
         Bundle bundle = new Bundle();
-        bundle.putInt(Constants.KEY_START_NOTE_POSITION, noteAdapter.getItemCount());
+        bundle.putInt(Constants.KEY_START_NOTE_POSITION, startPosition);
         getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, bundle, this);
     }
 }

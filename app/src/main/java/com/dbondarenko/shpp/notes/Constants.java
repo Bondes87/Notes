@@ -14,7 +14,7 @@ public class Constants {
     public static final String PATTERN_DATE = "dd-MM-yyyy";
     public static final String PATTERN_TIME = "HH:mm";
 
-    // The keys for getting a note and note position from the arguments of the fragment.
+    // Keys for sending and receiving data from intent or bundle.
     public static final String KEY_NOTE = "KeyNote";
     public static final String KEY_NOTE_POSITION = "KeyNotePosition";
     public static final String KEY_START_NOTE_POSITION = "KeyStartNotePosition";
@@ -28,12 +28,16 @@ public class Constants {
     // Tag for creating dialog fragment for confirmation to delete note.
     public static final String TAG_OF_DELETE_NOTE_DIALOG_FRAGMENT = "DeleteNoteDialogFragment";
 
+    // Codes for exchanging data between activities.
     public static final int REQUEST_CODE_NOTE_ACTIVITY = 101;
     public static final int RESULT_CODE_ADD_NOTE = 102;
     public static final int RESULT_CODE_UPDATE_NOTE = 103;
     public static final int RESULT_CODE_DELETE_NOTE = 104;
 
-    public static final int AMOUNT_OF_NOTES_TO_DOWNLOAD = 10;
+    // The minimum number of items to have below your current scroll position
+    // before loading more.
+    public static final int MAXIMUM_COUNT_OF_NOTES_TO_LOAD = 20;
+    public static final int VISIBLE_THRESHOLD = 10;
 
 
 }
