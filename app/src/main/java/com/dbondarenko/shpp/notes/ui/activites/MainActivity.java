@@ -14,6 +14,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -31,7 +33,6 @@ import com.dbondarenko.shpp.notes.api.request.base.BaseRequest;
 import com.dbondarenko.shpp.notes.api.request.models.AddNoteRequestModel;
 import com.dbondarenko.shpp.notes.api.request.models.DeleteNoteRequestModel;
 import com.dbondarenko.shpp.notes.api.request.models.GetNotesRequestModel;
-import com.dbondarenko.shpp.notes.api.response.model.AddNoteResultModel;
 import com.dbondarenko.shpp.notes.api.response.model.DeleteNoteResultModel;
 import com.dbondarenko.shpp.notes.api.response.model.GetNotesResultModel;
 import com.dbondarenko.shpp.notes.api.response.model.base.BaseErrorModel;
@@ -81,6 +82,31 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
             totalAmountOfNotesOnServer = savedInstanceState.getInt(Constants.KEY_TOTAL_AMOUNT_OF_NOTES_ON_SERVER);
         } else {
             initRecyclerView(null);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(TAG, "onOptionsItemSelected()");
+        switch (item.getItemId()) {
+
+            case R.id.itemRefresh:
+                progressBarActionsWithNote.setVisibility(View.VISIBLE);
+                textViewNoNotes.setVisibility(View.GONE);
+                noteAdapter.clearNotesFromAdapter();
+                totalAmountOfNotesOnServer = 0;
+                updateRecyclerViewNotesListListener();
+                downloadNotes(noteAdapter.getItemCount());
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -184,6 +210,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                         totalAmountOfNotesOnServer > 0 &&
                         ((LinearLayoutManager) recyclerViewNotesList.getLayoutManager())
                                 .findLastVisibleItemPosition() == noteAdapter.getItemCount()) {
+                    smoothProgressBarNotesLoading.setVisibility(View.VISIBLE);
                     downloadNotes(noteAdapter.getItemCount());
                 }
                 break;
@@ -229,6 +256,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         Log.d(TAG, "onSaveInstanceState()");
         outState.putSerializable(Constants.KEY_NOTES_LIST, (ArrayList<NoteModel>) noteAdapter.getNotes());
         outState.putInt(Constants.KEY_TOTAL_AMOUNT_OF_NOTES_ON_SERVER, totalAmountOfNotesOnServer);
+    }
+
+    private void updateRecyclerViewNotesListListener() {
+        recyclerViewNotesList.addOnScrollListener(getEndlessRecyclerScrollListener());
     }
 
     private void initViews() {
@@ -312,8 +343,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
 
             @Override
             public void onLoadMore() {
-                smoothProgressBarNotesLoading.setVisibility(View.VISIBLE);
-                downloadNotes(noteAdapter.getItemCount());
+                Log.d(TAG, "onLoadMore()");
+                if (totalAmountOfNotesOnServer > noteAdapter.getItemCount()) {
+                    smoothProgressBarNotesLoading.setVisibility(View.VISIBLE);
+                    downloadNotes(noteAdapter.getItemCount());
+                }
             }
 
             @Override

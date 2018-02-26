@@ -102,6 +102,12 @@ public class NoteAdapter extends
         return notesList.get(notePosition);
     }
 
+    public void clearNotesFromAdapter() {
+        int size = notesList.size();
+        notesList.clear();
+        notifyItemRangeRemoved(0, size);
+    }
+
     public List<NoteModel> getNotes() {
         Log.d(TAG, "getNotes()");
         return notesList;
