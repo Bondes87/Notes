@@ -208,8 +208,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 DeleteNoteResultModel deleteNoteResultModel = (DeleteNoteResultModel) baseResultModel;
                 if (deleteNoteResultModel.isDeleted() &&
                         totalAmountOfNotesOnServer > 0 &&
+                        totalAmountOfNotesOnServer != noteAdapter.getItemCount() &&
                         ((LinearLayoutManager) recyclerViewNotesList.getLayoutManager())
-                                .findLastVisibleItemPosition() == noteAdapter.getItemCount()) {
+                                .findLastVisibleItemPosition() + 1 == noteAdapter.getItemCount()) {
                     smoothProgressBarNotesLoading.setVisibility(View.VISIBLE);
                     downloadNotes(noteAdapter.getItemCount());
                 }
