@@ -72,7 +72,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.fragment_note_menu, menu);
+        getMenuInflater().inflate(R.menu.activity_note_menu, menu);
         if (notePosition == -1) {
             menu.findItem(R.id.itemDeleteNote).setVisible(false);
         }

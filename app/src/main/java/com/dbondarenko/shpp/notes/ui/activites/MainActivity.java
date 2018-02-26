@@ -39,13 +39,16 @@ import com.dbondarenko.shpp.notes.ui.widgets.MarginDecoration;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
+
 public class MainActivity extends BaseActivity implements View.OnClickListener,
         OnEmptyListListener, OnListItemClickListener, LoaderManager.LoaderCallbacks<ApiLoaderResponse> {
 
 
     private FloatingActionButton floatingActionButtonAddNote;
     private RecyclerView recyclerViewNotesList;
-    private ProgressBar progressBarNotesLoading;
+    private SmoothProgressBar smoothProgressBarNotesLoading;
+    private ProgressBar progressBarActionsWithNote;
     private TextView textViewNoNotes;
 
     private NoteAdapter noteAdapter;
@@ -118,7 +121,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     @Override
     public void onLoadFinished(Loader<ApiLoaderResponse> loader, ApiLoaderResponse data) {
         Log.d(TAG, "onLoadFinished()");
-        progressBarNotesLoading.setVisibility(View.GONE);
+        progressBarActionsWithNote.setVisibility(View.GONE);
+        smoothProgressBarNotesLoading.setVisibility(View.GONE);
         if (data != null) {
             if (data.getResponseModel() != null) {
                 if (data.getResponseModel().getResult() != null) {
@@ -174,6 +178,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 switch (resultCode) {
 
                     case Constants.RESULT_CODE_ADD_NOTE:
+                        totalAmountOfNotesOnServer++;
+                        if (((LinearLayoutManager) recyclerViewNotesList.getLayoutManager())
+                                .findFirstCompletelyVisibleItemPosition() == 0) {
+                            recyclerViewNotesList.scrollToPosition(0);
+                        }
                         noteAdapter.addNote((NoteModel) data.getSerializableExtra(Constants.KEY_NOTE));
                         break;
 
@@ -183,6 +192,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                         break;
 
                     case Constants.RESULT_CODE_DELETE_NOTE:
+                        totalAmountOfNotesOnServer--;
                         noteAdapter.deleteNote(data.getIntExtra(Constants.KEY_NOTE_POSITION, -1));
                         break;
                 }
@@ -206,7 +216,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         floatingActionButtonAddNote = findViewById(R.id.floatingActionButtonAddNote);
         floatingActionButtonAddNote.setOnClickListener(this);
         recyclerViewNotesList = findViewById(R.id.recyclerViewNotesList);
-        progressBarNotesLoading = findViewById(R.id.progressBarNotesLoading);
+        smoothProgressBarNotesLoading = findViewById(R.id.smoothProgressBarNotesLoading);
+        progressBarActionsWithNote = findViewById(R.id.progressBarActionsWithNote);
         textViewNoNotes = findViewById(R.id.textViewNoNotes);
     }
 
@@ -235,6 +246,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         return new OnEndlessRecyclerScrollListener() {
             @Override
             public void onLoadMore() {
+                smoothProgressBarNotesLoading.setVisibility(View.VISIBLE);
                 downloadNotes(noteAdapter.getItemCount());
             }
 
@@ -262,20 +274,16 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         Log.d(TAG, "initRecyclerViewAdapter()");
         noteAdapter = new NoteAdapter(this, this);
         if (notesList == null) {
-            progressBarNotesLoading.setVisibility(View.VISIBLE);
-            initLoader();
+            progressBarActionsWithNote.setVisibility(View.VISIBLE);
+            downloadNotes(0);
         } else {
             noteAdapter.addNotes(notesList);
             noteAdapter.checkListForEmptiness();
         }
     }
 
-    private void initLoader() {
-        Log.d(TAG, "initLoader()");
-        downloadNotes(0);
-    }
-
     private void downloadNotes(int startPosition) {
+        Log.d(TAG, "downloadNotes()");
         Bundle bundle = new Bundle();
         bundle.putInt(Constants.KEY_START_NOTE_POSITION, startPosition);
         getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, bundle, this);
