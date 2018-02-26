@@ -13,6 +13,7 @@ import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -54,7 +55,14 @@ public class NoteModelEndpoint {
         if (notesList.contains(note)) {
             return new ApiResponse(new Error("This note already exists."));
         }
-        notesList.add(0, note);
+        for (int i = 0; i < notesList.size(); i++) {
+            if (notesList.get(i).getDatetime() < note.getDatetime()) {
+                logger.info("if true: " + i);
+                notesList.add(i, note);
+                return new ApiResponse(new AddNoteResult(true));
+            }
+        }
+        notesList.add(note);
         return new ApiResponse(new AddNoteResult(true));
     }
 
@@ -132,6 +140,17 @@ public class NoteModelEndpoint {
             return new ApiResponse(new DeleteNoteResult(true));
         }
         return new ApiResponse(new Error("Note does not exist."));
+    }
+
+    @ApiMethod(name = "createNotes",
+            httpMethod = ApiMethod.HttpMethod.POST,
+            path = "createNotes")
+    public void createNotes(@Named("count") int count) {
+        logger.info("Calling deleteNote method ");
+        long datetime = Calendar.getInstance().getTimeInMillis();
+        for (int i = count; i > 0; i--) {
+            notesList.add(0, new NoteModel(datetime + i * 1000, String.valueOf(i)));
+        }
     }
 
     private int getIndexOfNoteByDatetime(long datetime) {

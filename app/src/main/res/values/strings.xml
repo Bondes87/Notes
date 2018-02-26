@@ -2,9 +2,10 @@
     <string name="app_name">Notes</string>
     <string name="text_no_notes">No notes</string>
     <string name="text_hint_for_message">Enter note</string>
-    <string name="error_loading_data">Error loading data</string>
+    <string name="error_server_is_not_responding">Error: Server is not responding. Please try again later.</string>
     <string name="text_delete_note">Delete note</string>
     <string name="text_save_note">Save note</string>
+    <string name="text_refresh">Refresh</string>
     <string name="text_note_added">Note was added</string>
     <string name="text_note_deleted">Note was deleted</string>
     <string name="text_note_updated">Note was updated</string>
