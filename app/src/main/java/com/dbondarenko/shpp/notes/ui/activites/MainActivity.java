@@ -4,12 +4,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -22,8 +24,15 @@ import com.dbondarenko.shpp.notes.Constants;
 import com.dbondarenko.shpp.notes.R;
 import com.dbondarenko.shpp.notes.api.ApiLoaderResponse;
 import com.dbondarenko.shpp.notes.api.ApiName;
+import com.dbondarenko.shpp.notes.api.request.AddNoteRequest;
+import com.dbondarenko.shpp.notes.api.request.DeleteNoteRequest;
 import com.dbondarenko.shpp.notes.api.request.GetNotesRequest;
+import com.dbondarenko.shpp.notes.api.request.base.BaseRequest;
+import com.dbondarenko.shpp.notes.api.request.models.AddNoteRequestModel;
+import com.dbondarenko.shpp.notes.api.request.models.DeleteNoteRequestModel;
 import com.dbondarenko.shpp.notes.api.request.models.GetNotesRequestModel;
+import com.dbondarenko.shpp.notes.api.response.model.AddNoteResultModel;
+import com.dbondarenko.shpp.notes.api.response.model.DeleteNoteResultModel;
 import com.dbondarenko.shpp.notes.api.response.model.GetNotesResultModel;
 import com.dbondarenko.shpp.notes.api.response.model.base.BaseErrorModel;
 import com.dbondarenko.shpp.notes.api.response.model.base.BaseResultModel;
@@ -35,6 +44,7 @@ import com.dbondarenko.shpp.notes.ui.listeners.OnEndlessRecyclerScrollListener;
 import com.dbondarenko.shpp.notes.ui.listeners.OnListItemClickListener;
 import com.dbondarenko.shpp.notes.ui.loaders.ApiServiceAsyncTaskLoader;
 import com.dbondarenko.shpp.notes.ui.widgets.MarginDecoration;
+import com.dbondarenko.shpp.notes.ui.widgets.RecyclerItemTouchHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,9 +119,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
             case Constants.LOADER_ID_API_SERVICE:
                 if (args != null) {
                     return new ApiServiceAsyncTaskLoader(getApplicationContext(),
-                            new GetNotesRequest(new GetNotesRequestModel(
-                                    args.getInt(Constants.KEY_START_NOTE_POSITION),
-                                    Constants.MAXIMUM_COUNT_OF_NOTES_TO_LOAD)));
+                            (BaseRequest) args.getSerializable(Constants.KEY_REQUEST));
                 }
             default:
                 return null;
@@ -134,7 +142,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 }
             } else {
                 if (data.getException() != null) {
-                    showMessageInSnackbar(recyclerViewNotesList, getString(R.string.error_loading_data));
+                    showMessageInSnackbar(recyclerViewNotesList, getString(R.string.error_server_is_not_responding));
                 }
             }
         }
@@ -158,6 +166,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     public void handleSuccessResult(ApiName apiName, BaseResultModel baseResultModel) {
         Log.d(TAG, "handleSuccessResult()");
         switch (apiName) {
+
             case GET_GET_NOTES:
                 GetNotesResultModel getNotesResultModel = (GetNotesResultModel) baseResultModel;
                 if (getNotesResultModel.getNotes() != null) {
@@ -168,11 +177,22 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                     textViewNoNotes.setVisibility(View.VISIBLE);
                 }
                 break;
+
+            case DELETE_DELETE_NOTE:
+                DeleteNoteResultModel deleteNoteResultModel = (DeleteNoteResultModel) baseResultModel;
+                if (deleteNoteResultModel.isDeleted() &&
+                        totalAmountOfNotesOnServer > 0 &&
+                        ((LinearLayoutManager) recyclerViewNotesList.getLayoutManager())
+                                .findLastVisibleItemPosition() == noteAdapter.getItemCount()) {
+                    downloadNotes(noteAdapter.getItemCount());
+                }
+                break;
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult()");
         switch (requestCode) {
             case Constants.REQUEST_CODE_NOTE_ACTIVITY:
                 switch (resultCode) {
@@ -239,11 +259,57 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         initRecyclerViewAdapter(notesList);
         recyclerViewNotesList.setAdapter(noteAdapter);
         recyclerViewNotesList.addOnScrollListener(getEndlessRecyclerScrollListener());
+        new ItemTouchHelper(getRecyclerItemTouchHelper()).attachToRecyclerView(recyclerViewNotesList);
+    }
+
+    @NonNull
+    private RecyclerItemTouchHelper getRecyclerItemTouchHelper() {
+        Log.d(TAG, "getRecyclerItemTouchHelper()");
+        return new RecyclerItemTouchHelper(0, ItemTouchHelper.LEFT,
+                (viewHolder, direction, position) -> {
+                    NoteModel note = noteAdapter.getNote(position);
+                    totalAmountOfNotesOnServer--;
+                    noteAdapter.deleteNote(position);
+                    deleteNote(note);
+                    reportOnDeletingNote(note, position);
+                });
+    }
+
+    private void deleteNote(NoteModel note) {
+        Log.d(TAG, "deleteNote()");
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(Constants.KEY_REQUEST,
+                new DeleteNoteRequest(new DeleteNoteRequestModel(note.getDatetime())));
+        getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, bundle, this);
+    }
+
+    private void reportOnDeletingNote(NoteModel note, int position) {
+        Log.d(TAG, "reportOnDeletingNote()");
+        Snackbar snackbar = Snackbar.make(recyclerViewNotesList, getString(R.string.text_note_deleted),
+                Snackbar.LENGTH_SHORT);
+        snackbar.setAction(getString(R.string.button_cancel), cancelButton -> {
+            totalAmountOfNotesOnServer++;
+            noteAdapter.addNote(note, position);
+            if (isStartOrEndNotePosition(position)) {
+                recyclerViewNotesList.scrollToPosition(position);
+            }
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(Constants.KEY_REQUEST, new AddNoteRequest(new AddNoteRequestModel(note)));
+            getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, bundle, this);
+        });
+        snackbar.setActionTextColor(getResources().getColor(R.color.colorAccent));
+        snackbar.show();
+    }
+
+    private boolean isStartOrEndNotePosition(int currentPosition) {
+        return currentPosition == 0 || currentPosition == noteAdapter.getItemCount() - 1;
     }
 
     @NonNull
     private OnEndlessRecyclerScrollListener getEndlessRecyclerScrollListener() {
+        Log.d(TAG, "getEndlessRecyclerScrollListener()");
         return new OnEndlessRecyclerScrollListener() {
+
             @Override
             public void onLoadMore() {
                 smoothProgressBarNotesLoading.setVisibility(View.VISIBLE);
@@ -285,7 +351,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     private void downloadNotes(int startPosition) {
         Log.d(TAG, "downloadNotes()");
         Bundle bundle = new Bundle();
-        bundle.putInt(Constants.KEY_START_NOTE_POSITION, startPosition);
+        bundle.putSerializable(Constants.KEY_REQUEST, new GetNotesRequest(new GetNotesRequestModel(
+                startPosition, Constants.MAXIMUM_COUNT_OF_NOTES_TO_LOAD)));
         getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, bundle, this);
     }
 }

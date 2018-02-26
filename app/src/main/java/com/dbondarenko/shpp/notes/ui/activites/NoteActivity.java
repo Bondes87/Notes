@@ -15,7 +15,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.dbondarenko.shpp.notes.Constants;
 import com.dbondarenko.shpp.notes.R;
@@ -138,7 +137,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
                 }
             } else {
                 if (data.getException() != null) {
-                    showMessageInSnackbar(editTextMessage, getString(R.string.error_loading_data));
+                    showMessageInSnackbar(editTextMessage, getString(R.string.error_server_is_not_responding));
                 }
             }
         }
@@ -157,7 +156,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
             case POST_ADD_NOTE:
                 AddNoteResultModel addNoteResultModel = (AddNoteResultModel) baseResultModel;
                 if (addNoteResultModel.isAdded()) {
-                    showMessageInToast(getString(R.string.text_note_added));
+                    showMessageInToast(getApplicationContext(), getString(R.string.text_note_added));
                     returnResult(Constants.RESULT_CODE_ADD_NOTE);
                 }
                 break;
@@ -165,7 +164,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
             case PUT_UPDATE_NOTE:
                 UpdateNoteResultModel updateNoteResultModel = (UpdateNoteResultModel) baseResultModel;
                 if (updateNoteResultModel.isUpdated()) {
-                    showMessageInToast(getString(R.string.text_note_updated));
+                    showMessageInToast(getApplicationContext(), getString(R.string.text_note_updated));
                     returnResult(Constants.RESULT_CODE_UPDATE_NOTE);
                 }
                 break;
@@ -173,7 +172,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
             case DELETE_DELETE_NOTE:
                 DeleteNoteResultModel deleteNoteResultModel = (DeleteNoteResultModel) baseResultModel;
                 if (deleteNoteResultModel.isDeleted()) {
-                    showMessageInToast(getString(R.string.text_note_deleted));
+                    showMessageInToast(getApplicationContext(), getString(R.string.text_note_deleted));
                     returnResult(Constants.RESULT_CODE_DELETE_NOTE);
                 }
                 break;
@@ -232,10 +231,6 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
             datetime = Calendar.getInstance().getTimeInMillis();
         }
         setActionBarTitle(Util.getStringDatetime(datetime));
-    }
-
-    private void showMessageInToast(String message) {
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
     private void saveNote(String message) {

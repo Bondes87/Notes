@@ -17,7 +17,6 @@ public class Constants {
     // Keys for sending and receiving data from intent or bundle.
     public static final String KEY_NOTE = "KeyNote";
     public static final String KEY_NOTE_POSITION = "KeyNotePosition";
-    public static final String KEY_START_NOTE_POSITION = "KeyStartNotePosition";
     public static final String KEY_REQUEST = "KeyRequest";
     public static final String KEY_NOTES_LIST = "KeyNotesList";
     public static final String KEY_TOTAL_AMOUNT_OF_NOTES_ON_SERVER = "KeyTotalAmountOfNotesOnServer";

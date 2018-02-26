@@ -1,5 +1,6 @@
 package com.dbondarenko.shpp.notes.ui.adapters;
 
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -114,9 +115,10 @@ public class NoteAdapter extends
 
         private static final String TAG = NoteHolder.class.getSimpleName();
 
-        TextView textViewNoteMessage;
-        TextView textViewNoteDate;
-        TextView textViewNoteTime;
+        public ConstraintLayout constraintLayoutForeground;
+        private TextView textViewNoteMessage;
+        private TextView textViewNoteDate;
+        private TextView textViewNoteTime;
 
         private OnListItemClickListener onListItemClickListener;
 
@@ -137,6 +139,7 @@ public class NoteAdapter extends
         }
 
         private void initViews(View itemView) {
+            constraintLayoutForeground = itemView.findViewById(R.id.constraintLayoutForeground);
             textViewNoteMessage = itemView.findViewById(R.id.textViewNoteMessage);
             textViewNoteDate = itemView.findViewById(R.id.textViewNoteDate);
             textViewNoteTime = itemView.findViewById(R.id.textViewNoteTime);
