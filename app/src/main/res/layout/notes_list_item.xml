@@ -47,7 +47,7 @@
             android:id="@+id/constraintLayoutForeground"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorWhite"
+            android:background="@drawable/notes_list_item_background"
             android:padding="@dimen/small_padding">
 
             <TextView

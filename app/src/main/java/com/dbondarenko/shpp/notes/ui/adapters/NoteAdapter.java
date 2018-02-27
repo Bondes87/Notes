@@ -3,6 +3,7 @@ package com.dbondarenko.shpp.notes.ui.adapters;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,16 +30,26 @@ public class NoteAdapter extends
         RecyclerView.Adapter<NoteAdapter.NoteHolder> {
 
     private static final String TAG = NoteAdapter.class.getSimpleName();
-
+    static boolean isMultiSelectActivated;
     private OnListItemClickListener onListItemClickListener;
     private OnEmptyListListener onEmptyListListener;
+    private List<Integer> multiSelectNotesPositionsList;
     private List<NoteModel> notesList;
 
     public NoteAdapter(OnListItemClickListener onListItemClickListener,
                        OnEmptyListListener onEmptyListListener) {
         notesList = new ArrayList<>();
+        multiSelectNotesPositionsList = new ArrayList<>();
         this.onListItemClickListener = onListItemClickListener;
         this.onEmptyListListener = onEmptyListListener;
+    }
+
+    public static boolean isMultiSelectActivated() {
+        return isMultiSelectActivated;
+    }
+
+    public static void setMultiSelectActivated(boolean isMultiSelectActivated) {
+        NoteAdapter.isMultiSelectActivated = isMultiSelectActivated;
     }
 
     @Override
@@ -57,11 +68,55 @@ public class NoteAdapter extends
 
     @Override
     public void onBindViewHolder(NoteHolder holder, int position) {
+        SparseBooleanArray selectedItemsIds = new SparseBooleanArray();
+        selectedItemsIds.get(position);
+
         Log.d(TAG, "onBindViewHolder()");
         NoteModel note = notesList.get(position);
         holder.textViewNoteMessage.setText(note.getMessage());
         holder.textViewNoteDate.setText(Util.getStringDate(note.getDatetime()));
         holder.textViewNoteTime.setText(Util.getStringTime(note.getDatetime()));
+        holder.itemView.setActivated(multiSelectNotesPositionsList.contains(position));
+    }
+
+    public void addMultiSelectNote(int position) {
+        if (multiSelectNotesPositionsList.contains(position)) {
+            multiSelectNotesPositionsList.remove(multiSelectNotesPositionsList.indexOf(position));
+        } else {
+            multiSelectNotesPositionsList.add(position);
+        }
+        notifyItemChanged(position);
+    }
+
+    public void addMultiSelectNotes(List<Integer> multiSelectNotesPositionsList) {
+        this.multiSelectNotesPositionsList.addAll(multiSelectNotesPositionsList);
+        for (int positionOfNotesList : multiSelectNotesPositionsList) {
+            notifyItemChanged(positionOfNotesList);
+        }
+    }
+
+    public void clearMultiSelectNotes() {
+        for (int positionOfNotesList : multiSelectNotesPositionsList) {
+            notifyItemChanged(positionOfNotesList);
+        }
+        multiSelectNotesPositionsList.clear();
+        // notifyDataSetChanged();
+    }
+
+    public int getMultiSelectedCount() {
+        return multiSelectNotesPositionsList.size();
+    }
+
+    public List<Integer> getMultiSelectNotesPositions() {
+        return multiSelectNotesPositionsList;
+    }
+
+    public List<NoteModel> getMultiSelectNotes() {
+        List<NoteModel> multiSelectNotesList = new ArrayList<>();
+        for (int positionOfNotesList : multiSelectNotesPositionsList) {
+            multiSelectNotesList.add(notesList.get(positionOfNotesList));
+        }
+        return multiSelectNotesList;
     }
 
     public void addNotes(List<NoteModel> notes) {
@@ -117,7 +172,8 @@ public class NoteAdapter extends
         onEmptyListListener.onEmptyList(notesList.size() == 0);
     }
 
-    public static class NoteHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class NoteHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View
+            .OnLongClickListener {
 
         private static final String TAG = NoteHolder.class.getSimpleName();
 
@@ -134,6 +190,7 @@ public class NoteAdapter extends
             this.onListItemClickListener = onListItemClickListener;
             initViews(itemView);
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
         }
 
         @Override
@@ -142,6 +199,19 @@ public class NoteAdapter extends
             if (onListItemClickListener != null) {
                 onListItemClickListener.onClickListItem(getAdapterPosition());
             }
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            if (!isMultiSelectActivated) {
+                isMultiSelectActivated = true;
+                onListItemClickListener.onMultiSelectActivated();
+                if (onListItemClickListener != null) {
+                    onListItemClickListener.onClickListItem(getAdapterPosition());
+                }
+                return true;
+            }
+            return false;
         }
 
         private void initViews(View itemView) {

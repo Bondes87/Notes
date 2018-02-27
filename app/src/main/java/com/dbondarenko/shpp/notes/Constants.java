@@ -20,6 +20,7 @@ public class Constants {
     public static final String KEY_REQUEST = "KeyRequest";
     public static final String KEY_NOTES_LIST = "KeyNotesList";
     public static final String KEY_TOTAL_AMOUNT_OF_NOTES_ON_SERVER = "KeyTotalAmountOfNotesOnServer";
+    public static final String KEY_MULTI_SELECT_NOTES_POSITIONS = "KeyMultiSelectNotesPositions";
 
     // Identifiers for async task loaders
     public static final int LOADER_ID_API_SERVICE = 1;

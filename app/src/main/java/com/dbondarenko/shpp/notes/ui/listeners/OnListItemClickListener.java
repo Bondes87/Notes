@@ -10,4 +10,6 @@ package com.dbondarenko.shpp.notes.ui.listeners;
  */
 public interface OnListItemClickListener {
     void onClickListItem(int position);
+
+    void onMultiSelectActivated();
 }

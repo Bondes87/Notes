@@ -14,6 +14,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,7 +55,8 @@ import java.util.List;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener,
-        OnEmptyListListener, OnListItemClickListener, LoaderManager.LoaderCallbacks<ApiLoaderResponse> {
+        OnEmptyListListener, OnListItemClickListener, LoaderManager.LoaderCallbacks<ApiLoaderResponse>,
+        ActionMode.Callback {
 
 
     private FloatingActionButton floatingActionButtonAddNote;
@@ -63,6 +65,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     private ProgressBar progressBarActionsWithNote;
     private TextView textViewNoNotes;
 
+    private ActionMode multiSelectActionMode;
     private NoteAdapter noteAdapter;
 
     private int totalAmountOfNotesOnServer;
@@ -82,6 +85,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
             totalAmountOfNotesOnServer = savedInstanceState.getInt(Constants.KEY_TOTAL_AMOUNT_OF_NOTES_ON_SERVER);
             baseRequest = (BaseRequest) savedInstanceState.getSerializable(Constants.KEY_REQUEST);
             initRecyclerView((ArrayList<NoteModel>) savedInstanceState.getSerializable(Constants.KEY_NOTES_LIST));
+            List<Integer> multiSelectNotesPositions = (ArrayList<Integer>) savedInstanceState.getSerializable(Constants
+                    .KEY_MULTI_SELECT_NOTES_POSITIONS);
+            restoreMultiSelectActionMode(multiSelectNotesPositions);
         } else {
             initRecyclerView(null);
         }
@@ -135,11 +141,27 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     @Override
     public void onClickListItem(int position) {
         Log.d(TAG, "onClickListItem()");
-        Intent intentToStartNoteActivity = new Intent(this, NoteActivity.class);
-        intentToStartNoteActivity.putExtra(Constants.KEY_NOTE, noteAdapter.getNote(position));
-        intentToStartNoteActivity.putExtra(Constants.KEY_NOTE_POSITION, position);
-        setRequestParameters(null, true);
-        startActivityForResult(intentToStartNoteActivity, Constants.REQUEST_CODE_NOTE_ACTIVITY);
+        if (NoteAdapter.isMultiSelectActivated()) {
+            noteAdapter.addMultiSelectNote(position);
+            multiSelectActionMode.setTitle(getString(R.string.title_action_mode, noteAdapter.getMultiSelectedCount()));
+        } else {
+            Intent intentToStartNoteActivity = new Intent(this, NoteActivity.class);
+            intentToStartNoteActivity.putExtra(Constants.KEY_NOTE, noteAdapter.getNote(position));
+            intentToStartNoteActivity.putExtra(Constants.KEY_NOTE_POSITION, position);
+            setRequestParameters(null, true);
+            startActivityForResult(intentToStartNoteActivity, Constants.REQUEST_CODE_NOTE_ACTIVITY);
+        }
+    }
+
+    @Override
+    public void onMultiSelectActivated() {
+        multiSelectActionMode = startActionMode(this);
+        floatingActionButtonAddNote.animate()
+                .y(((View) floatingActionButtonAddNote.getParent()).getHeight())
+                .alpha(0)
+                .setInterpolator(new AccelerateInterpolator())
+                .start();
+        multiSelectActionMode.setTitle(getString(R.string.title_action_mode, noteAdapter.getMultiSelectedCount()));
     }
 
     @Override
@@ -231,6 +253,36 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     }
 
     @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        mode.getMenuInflater().inflate(R.menu.multi_select_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        menu.findItem(R.id.itemDeleteNote).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        return true;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.itemDeleteNote:
+
+                //Todo: delete notes;
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+        NoteAdapter.setMultiSelectActivated(false);
+        noteAdapter.clearMultiSelectNotes();
+        multiSelectActionMode = null;
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "onActivityResult()");
         switch (requestCode) {
@@ -271,6 +323,16 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         outState.putInt(Constants.KEY_TOTAL_AMOUNT_OF_NOTES_ON_SERVER, totalAmountOfNotesOnServer);
         if (baseRequest != null) {
             outState.putSerializable(Constants.KEY_REQUEST, baseRequest);
+        }
+        outState.putSerializable(Constants.KEY_MULTI_SELECT_NOTES_POSITIONS,
+                (ArrayList<Integer>) noteAdapter.getMultiSelectNotesPositions());
+    }
+
+    private void restoreMultiSelectActionMode(List<Integer> multiSelectNotesPositions) {
+        if (multiSelectNotesPositions != null && !multiSelectNotesPositions.isEmpty()) {
+            NoteAdapter.setMultiSelectActivated(true);
+            onMultiSelectActivated();
+            noteAdapter.addMultiSelectNotes(multiSelectNotesPositions);
         }
     }
 
