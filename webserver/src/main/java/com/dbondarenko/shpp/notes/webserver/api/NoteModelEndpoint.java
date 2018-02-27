@@ -3,6 +3,7 @@ package com.dbondarenko.shpp.notes.webserver.api;
 import com.dbondarenko.shpp.core.models.AddNoteResult;
 import com.dbondarenko.shpp.core.models.ApiResponse;
 import com.dbondarenko.shpp.core.models.DeleteNoteResult;
+import com.dbondarenko.shpp.core.models.DeleteNotesResult;
 import com.dbondarenko.shpp.core.models.Error;
 import com.dbondarenko.shpp.core.models.GetCountNotes;
 import com.dbondarenko.shpp.core.models.GetNotesResult;
@@ -140,6 +141,30 @@ public class NoteModelEndpoint {
             return new ApiResponse(new DeleteNoteResult(true));
         }
         return new ApiResponse(new Error("Note does not exist."));
+    }
+
+    @ApiMethod(name = "deleteNotes",
+            httpMethod = ApiMethod.HttpMethod.DELETE,
+            path = "deleteNotes")
+    public ApiResponse deleteNotes(@Named("datetimeArray") long[] datetimeArray) {
+        logger.info("Calling deleteNotes method ");
+        if (notesList.size() == 0) {
+            return new ApiResponse(new Error("List of notes is empty."));
+        }
+        if (datetimeArray.length == 0) {
+            return new ApiResponse(new Error("Notes for removal are not specified."));
+        }
+        int oldNotesListSize = notesList.size();
+        for (long datetime : datetimeArray) {
+            int indexOfNoteFromList = getIndexOfNoteByDatetime(datetime);
+            if (indexOfNoteFromList != -1) {
+                notesList.remove(indexOfNoteFromList);
+            }
+        }
+        if (oldNotesListSize==notesList.size()+datetimeArray.length){
+            return new ApiResponse(new DeleteNotesResult(true));
+        }
+        return new ApiResponse(new Error("Deleting notes occurred error."));
     }
 
     @ApiMethod(name = "createNotes",
