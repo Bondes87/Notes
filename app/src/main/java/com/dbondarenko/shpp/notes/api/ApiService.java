@@ -2,6 +2,7 @@ package com.dbondarenko.shpp.notes.api;
 
 import com.dbondarenko.shpp.notes.api.response.AddNoteResponse;
 import com.dbondarenko.shpp.notes.api.response.DeleteNoteResponse;
+import com.dbondarenko.shpp.notes.api.response.DeleteNotesResponse;
 import com.dbondarenko.shpp.notes.api.response.GetNotesResponse;
 import com.dbondarenko.shpp.notes.api.response.UpdateNoteResponse;
 import com.dbondarenko.shpp.notes.models.NoteModel;
@@ -38,4 +39,7 @@ public interface ApiService {
 
     @DELETE("/_ah/api/notes/v1/deleteNote")
     Call<DeleteNoteResponse> deleteNote(@Query("datetime") long datetime);
+
+    @DELETE("/_ah/api/notes/v1/deleteNotes")
+    Call<DeleteNotesResponse> deleteNotes(@Query("datetimeArray") long[] datetimeArray);
 }

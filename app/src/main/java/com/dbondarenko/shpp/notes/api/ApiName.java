@@ -11,6 +11,7 @@ package com.dbondarenko.shpp.notes.api;
 public enum ApiName {
     POST_ADD_NOTE,
     DELETE_DELETE_NOTE,
+    DELETE_DELETE_NOTES,
     GET_GET_ALL_NOTES,
     GET_GET_COUNT_NOTES,
     GET_GET_NOTES,
