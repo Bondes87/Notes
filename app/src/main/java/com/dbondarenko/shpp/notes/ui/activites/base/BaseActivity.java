@@ -4,11 +4,13 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.dbondarenko.shpp.notes.api.ApiName;
+import com.dbondarenko.shpp.notes.api.request.base.BaseRequest;
 import com.dbondarenko.shpp.notes.api.response.model.base.BaseErrorModel;
 import com.dbondarenko.shpp.notes.api.response.model.base.BaseResultModel;
 
@@ -23,6 +25,9 @@ import com.dbondarenko.shpp.notes.api.response.model.base.BaseResultModel;
 public abstract class BaseActivity extends AppCompatActivity {
 
     protected final String TAG;
+
+    public BaseRequest baseRequest;
+    public boolean isLoaderSuccess;
 
     public BaseActivity() {
         TAG = getClass().getSimpleName();
@@ -71,16 +76,47 @@ public abstract class BaseActivity extends AppCompatActivity {
         Log.d(TAG, "onDestroy()");
     }
 
-    public void showMessageInSnackbar(View view, String message) {
-        Log.d(TAG, "showMessageInSnackbar()");
-        Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE)
-                .setAction(android.R.string.ok, listener -> {
-                });
+    public void showSnackbar(View view, String message) {
+        showSnackbar(view, message, null, Snackbar.LENGTH_INDEFINITE, null);
+    }
+
+    public void showSnackbar(View view, String message, int duration) {
+        showSnackbar(view, message, null, duration, null);
+    }
+
+    public void showSnackbar(View view, String message, String buttonName,
+                             View.OnClickListener onClickListener) {
+        showSnackbar(view, message, buttonName, Snackbar.LENGTH_INDEFINITE, onClickListener);
+    }
+
+    public void showSnackbar(View view, String messageText, String buttonName, int duration,
+                             View.OnClickListener onClickListener) {
+        Log.d(TAG, "showSnackbar()");
+        Snackbar snackbar = Snackbar.make(view, messageText, duration);
+        if (TextUtils.isEmpty(buttonName) && onClickListener != null) {
+            snackbar.setAction(android.R.string.ok, onClickListener);
+        }
+        if (!TextUtils.isEmpty(buttonName) && onClickListener == null) {
+            snackbar.setAction(buttonName, listener -> {
+            });
+        }
+        if (TextUtils.isEmpty(buttonName) && onClickListener == null) {
+            snackbar.setAction(android.R.string.ok, listener -> {
+            });
+        }
+        if (!TextUtils.isEmpty(buttonName) && onClickListener != null) {
+            snackbar.setAction(buttonName, onClickListener);
+        }
         snackbar.show();
     }
 
-    public void showMessageInToast(Context context, String message) {
-        Log.d(TAG, "showMessageInToast()");
+    public void showToast(Context context, String message) {
+        Log.d(TAG, "showToast()");
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public void setRequestParameters(BaseRequest baseRequest, boolean isLoaderSuccess) {
+        this.baseRequest = baseRequest;
+        this.isLoaderSuccess = isLoaderSuccess;
     }
 }

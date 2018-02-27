@@ -37,6 +37,7 @@ import com.dbondarenko.shpp.notes.api.response.model.DeleteNoteResultModel;
 import com.dbondarenko.shpp.notes.api.response.model.GetNotesResultModel;
 import com.dbondarenko.shpp.notes.api.response.model.base.BaseErrorModel;
 import com.dbondarenko.shpp.notes.api.response.model.base.BaseResultModel;
+import com.dbondarenko.shpp.notes.models.NoInternetConnectionException;
 import com.dbondarenko.shpp.notes.models.NoteModel;
 import com.dbondarenko.shpp.notes.ui.activites.base.BaseActivity;
 import com.dbondarenko.shpp.notes.ui.adapters.NoteAdapter;
@@ -78,8 +79,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         initViews();
         initActionBar();
         if (savedInstanceState != null) {
-            initRecyclerView((ArrayList<NoteModel>) savedInstanceState.getSerializable(Constants.KEY_NOTES_LIST));
             totalAmountOfNotesOnServer = savedInstanceState.getInt(Constants.KEY_TOTAL_AMOUNT_OF_NOTES_ON_SERVER);
+            baseRequest = (BaseRequest) savedInstanceState.getSerializable(Constants.KEY_REQUEST);
+            initRecyclerView((ArrayList<NoteModel>) savedInstanceState.getSerializable(Constants.KEY_NOTES_LIST));
         } else {
             initRecyclerView(null);
         }
@@ -115,6 +117,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         Log.d(TAG, "onClick()");
         switch (v.getId()) {
             case R.id.floatingActionButtonAddNote:
+                setRequestParameters(null, true);
                 startActivityForResult(new Intent(this, NoteActivity.class), Constants.REQUEST_CODE_NOTE_ACTIVITY);
         }
     }
@@ -135,6 +138,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         Intent intentToStartNoteActivity = new Intent(this, NoteActivity.class);
         intentToStartNoteActivity.putExtra(Constants.KEY_NOTE, noteAdapter.getNote(position));
         intentToStartNoteActivity.putExtra(Constants.KEY_NOTE_POSITION, position);
+        setRequestParameters(null, true);
         startActivityForResult(intentToStartNoteActivity, Constants.REQUEST_CODE_NOTE_ACTIVITY);
     }
 
@@ -143,9 +147,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         Log.d(TAG, "onCreateLoader() " + id);
         switch (id) {
             case Constants.LOADER_ID_API_SERVICE:
-                if (args != null) {
-                    return new ApiServiceAsyncTaskLoader(getApplicationContext(),
-                            (BaseRequest) args.getSerializable(Constants.KEY_REQUEST));
+                if (baseRequest != null) {
+                    return new ApiServiceAsyncTaskLoader(getApplicationContext(), baseRequest);
                 }
             default:
                 return null;
@@ -159,6 +162,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         smoothProgressBarNotesLoading.setVisibility(View.GONE);
         if (data != null) {
             if (data.getResponseModel() != null) {
+                setRequestParameters(null, true);
                 if (data.getResponseModel().getResult() != null) {
                     handleSuccessResult(data.getApiName(), data.getResponseModel().getResult());
                 } else {
@@ -168,7 +172,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 }
             } else {
                 if (data.getException() != null) {
-                    showMessageInSnackbar(recyclerViewNotesList, getString(R.string.error_server_is_not_responding));
+                    if (data.getException() instanceof NoInternetConnectionException) {
+                        showSnackbar(recyclerViewNotesList, data.getException().getMessage(),
+                                getString(R.string.button_repeat), listener -> {
+                                    getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, null,
+                                            this);
+                                });
+                    } else {
+                        showSnackbar(recyclerViewNotesList, getString(R.string.error_server_is_not_responding));
+                    }
                 }
             }
         }
@@ -184,7 +196,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         Log.d(TAG, "handleFailureResult()");
         String message = baseErrorModel.getMessage();
         if (!TextUtils.isEmpty(message)) {
-            showMessageInSnackbar(recyclerViewNotesList, message);
+            showSnackbar(recyclerViewNotesList, message);
         }
     }
 
@@ -257,6 +269,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         Log.d(TAG, "onSaveInstanceState()");
         outState.putSerializable(Constants.KEY_NOTES_LIST, (ArrayList<NoteModel>) noteAdapter.getNotes());
         outState.putInt(Constants.KEY_TOTAL_AMOUNT_OF_NOTES_ON_SERVER, totalAmountOfNotesOnServer);
+        if (baseRequest != null) {
+            outState.putSerializable(Constants.KEY_REQUEST, baseRequest);
+        }
     }
 
     private void updateRecyclerViewNotesListListener() {
@@ -309,25 +324,25 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
 
     private void deleteNote(NoteModel note) {
         Log.d(TAG, "deleteNote()");
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(Constants.KEY_REQUEST,
-                new DeleteNoteRequest(new DeleteNoteRequestModel(note.getDatetime())));
-        getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, bundle, this);
+        setRequestParameters(new DeleteNoteRequest(new DeleteNoteRequestModel(note.getDatetime())), false);
+        getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, null, this);
     }
 
     private void reportOnDeletingNote(NoteModel note, int position) {
         Log.d(TAG, "reportOnDeletingNote()");
         Snackbar snackbar = Snackbar.make(recyclerViewNotesList, getString(R.string.text_note_deleted),
                 Snackbar.LENGTH_SHORT);
-        snackbar.setAction(getString(R.string.button_cancel), cancelButton -> {
-            totalAmountOfNotesOnServer++;
-            noteAdapter.addNote(note, position);
-            if (isStartOrEndNotePosition(position)) {
-                recyclerViewNotesList.scrollToPosition(position);
+        snackbar.setAction(getString(R.string.button_cancel), new View.OnClickListener() {
+            @Override
+            public void onClick(View cancelButton) {
+                totalAmountOfNotesOnServer++;
+                noteAdapter.addNote(note, position);
+                if (MainActivity.this.isStartOrEndNotePosition(position)) {
+                    recyclerViewNotesList.scrollToPosition(position);
+                }
+                setRequestParameters(new AddNoteRequest(new AddNoteRequestModel(note)), false);
+                getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, null, MainActivity.this);
             }
-            Bundle bundle = new Bundle();
-            bundle.putSerializable(Constants.KEY_REQUEST, new AddNoteRequest(new AddNoteRequestModel(note)));
-            getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, bundle, this);
         });
         snackbar.setActionTextColor(getResources().getColor(R.color.colorAccent));
         snackbar.show();
@@ -379,15 +394,23 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
             downloadNotes(0);
         } else {
             noteAdapter.addNotes(notesList);
-            noteAdapter.checkListForEmptiness();
+            if (baseRequest != null) {
+                showSnackbar(recyclerViewNotesList, getString(R.string.button_repeat),
+                        getString(R.string.button_repeat), listener -> {
+                            getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, null,
+                                    this);
+                        });
+                onEmptyList(false);
+            } else {
+                noteAdapter.checkListForEmptiness();
+            }
         }
     }
 
     private void downloadNotes(int startPosition) {
         Log.d(TAG, "downloadNotes()");
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(Constants.KEY_REQUEST, new GetNotesRequest(new GetNotesRequestModel(
-                startPosition, Constants.MAXIMUM_COUNT_OF_NOTES_TO_LOAD)));
-        getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, bundle, this);
+        setRequestParameters(new GetNotesRequest(new GetNotesRequestModel(
+                startPosition, Constants.MAXIMUM_COUNT_OF_NOTES_TO_LOAD)), false);
+        getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, null, this);
     }
 }

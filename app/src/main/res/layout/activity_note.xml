@@ -3,7 +3,7 @@
              xmlns:tools="http://schemas.android.com/tools"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
-             tools:context="com.dbondarenko.shpp.notes.ui.fragments.NoteFragment">
+             tools:context="com.dbondarenko.shpp.notes.ui.activites.NoteActivity">
 
     <ScrollView
         android:layout_width="match_parent"

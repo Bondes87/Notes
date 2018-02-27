@@ -1,5 +1,8 @@
 package com.dbondarenko.shpp.notes.utils;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 import com.dbondarenko.shpp.notes.Constants;
@@ -40,4 +43,16 @@ public class Util {
         DateFormat dateFormat = new SimpleDateFormat(pattern, US);
         return dateFormat.format(new Date(datetime));
     }
+
+    public static boolean isInternetConnectionAvailable(Context context) {
+        Log.d(TAG, "isInternetConnectionAvailable()");
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = null;
+        if (connectivityManager != null) {
+            activeNetwork = connectivityManager.getActiveNetworkInfo();
+        }
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    }
+
 }

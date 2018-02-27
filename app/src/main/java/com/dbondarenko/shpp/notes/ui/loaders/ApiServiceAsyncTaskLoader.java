@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
+import com.dbondarenko.shpp.notes.R;
 import com.dbondarenko.shpp.notes.api.ApiLoaderResponse;
 import com.dbondarenko.shpp.notes.api.ApiService;
 import com.dbondarenko.shpp.notes.api.RetrofitHelper;
@@ -17,7 +18,9 @@ import com.dbondarenko.shpp.notes.api.response.AddNoteResponse;
 import com.dbondarenko.shpp.notes.api.response.DeleteNoteResponse;
 import com.dbondarenko.shpp.notes.api.response.GetNotesResponse;
 import com.dbondarenko.shpp.notes.api.response.UpdateNoteResponse;
+import com.dbondarenko.shpp.notes.models.NoInternetConnectionException;
 import com.dbondarenko.shpp.notes.models.NoteModel;
+import com.dbondarenko.shpp.notes.utils.Util;
 
 import retrofit2.Retrofit;
 
@@ -89,12 +92,19 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
         apiLoaderDeleteNoteResponse.setApiName(baseRequest.getApiName());
         DeleteNoteRequest deleteNoteRequest = (DeleteNoteRequest) baseRequest;
         long datetime = deleteNoteRequest.getRequestModel().getDatetime();
-        try {
-            apiLoaderDeleteNoteResponse.setResponse(apiService.deleteNote(datetime).execute());
-        } catch (Exception e) {
-            e.printStackTrace();
-            apiLoaderDeleteNoteResponse.setException(e);
+        if (Util.isInternetConnectionAvailable(getContext().getApplicationContext())) {
+            try {
+                apiLoaderDeleteNoteResponse.setResponse(apiService.deleteNote(datetime).execute());
+            } catch (Exception e) {
+                e.printStackTrace();
+                apiLoaderDeleteNoteResponse.setException(e);
+            }
+
+        } else {
+            apiLoaderDeleteNoteResponse.setException(new NoInternetConnectionException(
+                    getContext().getApplicationContext().getString(R.string.error_no_connection)));
         }
+
         return apiLoaderDeleteNoteResponse;
     }
 
@@ -104,11 +114,16 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
         apiLoaderUpdateNoteResponse.setApiName(baseRequest.getApiName());
         UpdateNoteRequest updateNoteRequest = (UpdateNoteRequest) baseRequest;
         NoteModel note = updateNoteRequest.getRequestModel().getNote();
-        try {
-            apiLoaderUpdateNoteResponse.setResponse(apiService.updateNote(note).execute());
-        } catch (Exception e) {
-            e.printStackTrace();
-            apiLoaderUpdateNoteResponse.setException(e);
+        if (Util.isInternetConnectionAvailable(getContext().getApplicationContext())) {
+            try {
+                apiLoaderUpdateNoteResponse.setResponse(apiService.updateNote(note).execute());
+            } catch (Exception e) {
+                e.printStackTrace();
+                apiLoaderUpdateNoteResponse.setException(e);
+            }
+        } else {
+            apiLoaderUpdateNoteResponse.setException(new NoInternetConnectionException(
+                    getContext().getApplicationContext().getString(R.string.error_no_connection)));
         }
         return apiLoaderUpdateNoteResponse;
     }
@@ -119,11 +134,16 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
         apiLoaderAddNoteResponse.setApiName(baseRequest.getApiName());
         AddNoteRequest addNoteRequest = (AddNoteRequest) baseRequest;
         NoteModel note = addNoteRequest.getRequestModel().getNote();
-        try {
-            apiLoaderAddNoteResponse.setResponse(apiService.addNote(note).execute());
-        } catch (Exception e) {
-            e.printStackTrace();
-            apiLoaderAddNoteResponse.setException(e);
+        if (Util.isInternetConnectionAvailable(getContext().getApplicationContext())) {
+            try {
+                apiLoaderAddNoteResponse.setResponse(apiService.addNote(note).execute());
+            } catch (Exception e) {
+                e.printStackTrace();
+                apiLoaderAddNoteResponse.setException(e);
+            }
+        } else {
+            apiLoaderAddNoteResponse.setException(new NoInternetConnectionException(
+                    getContext().getApplicationContext().getString(R.string.error_no_connection)));
         }
         return apiLoaderAddNoteResponse;
     }
@@ -136,11 +156,16 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
         GetNotesRequest getNotesRequest = (GetNotesRequest) baseRequest;
         int startPosition = getNotesRequest.getRequestModel().getStartPosition();
         int amount = getNotesRequest.getRequestModel().getAmount();
-        try {
-            apiLoaderGetNotesResponse.setResponse(apiService.getNotes(startPosition, amount).execute());
-        } catch (Exception e) {
-            e.printStackTrace();
-            apiLoaderGetNotesResponse.setException(e);
+        if (Util.isInternetConnectionAvailable(getContext().getApplicationContext())) {
+            try {
+                apiLoaderGetNotesResponse.setResponse(apiService.getNotes(startPosition, amount).execute());
+            } catch (Exception e) {
+                e.printStackTrace();
+                apiLoaderGetNotesResponse.setException(e);
+            }
+        } else {
+            apiLoaderGetNotesResponse.setException(new NoInternetConnectionException(
+                    getContext().getApplicationContext().getString(R.string.error_no_connection)));
         }
         return apiLoaderGetNotesResponse;
     }
