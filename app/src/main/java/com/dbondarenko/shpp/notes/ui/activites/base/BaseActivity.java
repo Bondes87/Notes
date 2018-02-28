@@ -26,9 +26,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected final String TAG;
 
-    public BaseRequest baseRequest;
-    public boolean isLoaderSuccess;
-
+    private BaseRequest baseRequest;
     private Snackbar snackbar;
 
     public BaseActivity() {
@@ -80,15 +78,27 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        Log.d(TAG, "onBackPressed()");
         if (snackbar != null && snackbar.isShown()) {
             snackbar.dismiss();
-            setRequestParameters(null, true);
+            setRequest(null);
         } else {
             super.onBackPressed();
         }
     }
 
+    public BaseRequest getRequest() {
+        Log.d(TAG, "getRequest()");
+        return baseRequest;
+    }
+
+    public void setRequest(BaseRequest baseRequest) {
+        Log.d(TAG, "setRequest()");
+        this.baseRequest = baseRequest;
+    }
+
     public void dismissSnackBar() {
+        Log.d(TAG, "dismissSnackBar()");
         if (snackbar != null && snackbar.isShown()) {
             snackbar.dismiss();
         }
@@ -96,10 +106,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     public void showSnackbar(View view, String message) {
         showSnackbar(view, message, null, Snackbar.LENGTH_INDEFINITE, null);
-    }
-
-    public void showSnackbar(View view, String message, int duration) {
-        showSnackbar(view, message, null, duration, null);
     }
 
     public void showSnackbar(View view, String message, String buttonName,
@@ -131,10 +137,5 @@ public abstract class BaseActivity extends AppCompatActivity {
     public void showToast(Context context, String message) {
         Log.d(TAG, "showToast()");
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-    }
-
-    public void setRequestParameters(BaseRequest baseRequest, boolean isLoaderSuccess) {
-        this.baseRequest = baseRequest;
-        this.isLoaderSuccess = isLoaderSuccess;
     }
 }

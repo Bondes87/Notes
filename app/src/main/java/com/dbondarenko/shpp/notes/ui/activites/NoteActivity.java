@@ -63,12 +63,12 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
         notePosition = getIntent().getIntExtra(Constants.KEY_NOTE_POSITION, -1);
         if (savedInstanceState != null) {
             note = (NoteModel) savedInstanceState.getSerializable(Constants.KEY_NOTE);
-            baseRequest = (BaseRequest) savedInstanceState.getSerializable(Constants.KEY_REQUEST);
+            setRequest((BaseRequest) savedInstanceState.getSerializable(Constants.KEY_REQUEST));
         }
         initViews();
         fillViews();
         showSoftKeyboard();
-        if (baseRequest != null) {
+        if (getRequest() != null) {
             showSnackbar(editTextMessage, getString(R.string.error_no_connection),
                     getString(R.string.button_repeat), listener -> {
                         getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, null,
@@ -79,6 +79,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d(TAG, "onCreateOptionsMenu()");
         getMenuInflater().inflate(R.menu.activity_note_menu, menu);
         if (notePosition == -1) {
             menu.findItem(R.id.itemDeleteNote).setVisible(false);
@@ -107,7 +108,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
                 return true;
 
             case android.R.id.home:
-                setRequestParameters(null, true);
+                setRequest(null);
                 hideSoftKeyboard();
                 onBackPressed();
                 return true;
@@ -122,8 +123,10 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
         Log.d(TAG, "onCreateLoader() " + id);
         switch (id) {
             case Constants.LOADER_ID_API_SERVICE:
-                if (baseRequest != null) {
-                    return new ApiServiceAsyncTaskLoader(getApplicationContext(), baseRequest);
+                if (getRequest() != null) {
+                    progressBarActionsWithNote.setVisibility(View.VISIBLE);
+                    editTextMessage.setVisibility(View.GONE);
+                    return new ApiServiceAsyncTaskLoader(getApplicationContext(), getRequest());
                 }
             default:
                 return null;
@@ -134,19 +137,20 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
     public void onLoadFinished(Loader<ApiLoaderResponse> loader, ApiLoaderResponse data) {
         Log.d(TAG, "onLoadFinished()");
         progressBarActionsWithNote.setVisibility(View.GONE);
-        editTextMessage.setVisibility(View.VISIBLE);
         if (data != null) {
             if (data.getResponseModel() != null) {
-                setRequestParameters(null, true);
+                setRequest(null);
                 if (data.getResponseModel().getResult() != null) {
                     handleSuccessResult(data.getApiName(), data.getResponseModel().getResult());
                 } else {
                     if (data.getResponseModel().getError() != null) {
+                        editTextMessage.setVisibility(View.VISIBLE);
                         handleFailureResult(data.getResponseModel().getError());
                     }
                 }
             } else {
                 if (data.getException() != null) {
+                    editTextMessage.setVisibility(View.VISIBLE);
                     if (data.getException() instanceof NoInternetConnectionException) {
                         showSnackbar(editTextMessage, data.getException().getMessage(),
                                 getString(R.string.button_repeat), listener -> {
@@ -223,8 +227,8 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
         super.onSaveInstanceState(outState);
         Log.d(TAG, "onSaveInstanceState()");
         outState.putSerializable(Constants.KEY_NOTE, new NoteModel(datetime, editTextMessage.getText().toString()));
-        if (baseRequest != null) {
-            outState.putSerializable(Constants.KEY_REQUEST, baseRequest);
+        if (getRequest() != null) {
+            outState.putSerializable(Constants.KEY_REQUEST, getRequest());
         }
     }
 
@@ -236,6 +240,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
     private void returnResult(int resultCode) {
+        Log.d(TAG, "returnResult()");
         Intent intent = new Intent();
         intent.putExtra(Constants.KEY_NOTE, note);
         intent.putExtra(Constants.KEY_NOTE_POSITION, notePosition);
@@ -244,6 +249,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
     private void fillViews() {
+        Log.d(TAG, "fillViews()");
         if (note != null) {
             datetime = note.getDatetime();
             editTextMessage.setText(note.getMessage());
@@ -255,8 +261,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
     private void saveNote(String message) {
-        progressBarActionsWithNote.setVisibility(View.VISIBLE);
-        editTextMessage.setVisibility(View.GONE);
+        Log.d(TAG, "saveNote()");
         createRequest(message);
         getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, null, this);
     }
@@ -264,21 +269,19 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
     private void deleteNote() {
         Log.d(TAG, "deleteNote()");
         if (note != null) {
-            progressBarActionsWithNote.setVisibility(View.VISIBLE);
-            editTextMessage.setVisibility(View.GONE);
-            setRequestParameters(new DeleteNoteRequest(new DeleteNoteRequestModel(note
-                    .getDatetime())), false);
+            setRequest(new DeleteNoteRequest(new DeleteNoteRequestModel(note.getDatetime())));
             getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, null, this);
         }
     }
 
     private void createRequest(String message) {
+        Log.d(TAG, "createRequest()");
         if (notePosition == -1) {
             note = new NoteModel(datetime, message);
-            setRequestParameters(new AddNoteRequest(new AddNoteRequestModel(note)), false);
+            setRequest(new AddNoteRequest(new AddNoteRequestModel(note)));
         } else {
             note.setMessage(message);
-            setRequestParameters(new UpdateNoteRequest(new UpdateNoteRequestModel(note)), false);
+            setRequest(new UpdateNoteRequest(new UpdateNoteRequestModel(note)));
         }
     }
 
@@ -302,6 +305,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
     private void setActionBarTitle(String title) {
+        Log.d(TAG, "setActionBarTitle()");
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(title);
@@ -310,6 +314,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
     private void initViews() {
+        Log.d(TAG, "initViews()");
         editTextMessage = findViewById(R.id.editTextMessage);
         editTextMessage.requestFocus();
         progressBarActionsWithNote = findViewById(R.id.progressBarActionsWithNote);

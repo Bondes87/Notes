@@ -77,7 +77,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         initActionBar();
         if (savedInstanceState != null) {
             totalAmountOfNotesOnServer = savedInstanceState.getInt(Constants.KEY_TOTAL_AMOUNT_OF_NOTES_ON_SERVER);
-            baseRequest = (BaseRequest) savedInstanceState.getSerializable(Constants.KEY_REQUEST);
+            setRequest((BaseRequest) savedInstanceState.getSerializable(Constants.KEY_REQUEST));
             initRecyclerView((ArrayList<NoteModel>) savedInstanceState.getSerializable(Constants.KEY_NOTES_LIST));
             List<Integer> multiSelectNotesPositions = (ArrayList<Integer>) savedInstanceState.getSerializable(Constants
                     .KEY_MULTI_SELECT_NOTES_POSITIONS);
@@ -89,6 +89,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d(TAG, "onCreateOptionsMenu()");
         getMenuInflater().inflate(R.menu.activity_main_menu, menu);
         return true;
     }
@@ -99,13 +100,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         switch (item.getItemId()) {
 
             case R.id.itemRefresh:
-                progressBarActionsWithNote.setVisibility(View.VISIBLE);
-                textViewNoNotes.setVisibility(View.GONE);
                 noteAdapter.clearNotesFromAdapter();
                 totalAmountOfNotesOnServer = 0;
                 updateRecyclerViewNotesListListener();
                 dismissSnackBar();
-                setRequestParameters(null, true);
+                setRequest(null);
                 downloadNotes(noteAdapter.getItemCount());
                 return true;
 
@@ -119,11 +118,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         Log.d(TAG, "onClick()");
         switch (v.getId()) {
             case R.id.floatingActionButtonAddNote:
-                setRequestParameters(null, true);
+                dismissSnackBar();
+                setRequest(null);
                 startActivityForResult(new Intent(this, NoteActivity.class),
                         Constants.REQUEST_CODE_NOTE_ACTIVITY);
-                dismissSnackBar();
-                setRequestParameters(null, true);
                 break;
 
             case R.id.itemContainerCardView:
@@ -136,7 +134,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                     Intent intentToStartNoteActivity = new Intent(this, NoteActivity.class);
                     intentToStartNoteActivity.putExtra(Constants.KEY_NOTE, noteAdapter.getNote(position));
                     intentToStartNoteActivity.putExtra(Constants.KEY_NOTE_POSITION, position);
-                    setRequestParameters(null, true);
+                    setRequest(null);
                     startActivityForResult(intentToStartNoteActivity, Constants.REQUEST_CODE_NOTE_ACTIVITY);
                 }
                 break;
@@ -163,8 +161,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         Log.d(TAG, "onCreateLoader() " + id);
         switch (id) {
             case Constants.LOADER_ID_API_SERVICE:
-                if (baseRequest != null) {
-                    return new ApiServiceAsyncTaskLoader(getApplicationContext(), baseRequest);
+                if (getRequest() != null) {
+                    if (getRequest().getApiName() == ApiName.GET_GET_NOTES && noteAdapter.getItemCount() > 0) {
+                        smoothProgressBarNotesLoading.setVisibility(View.VISIBLE);
+                    } else {
+                        progressBarActionsWithNote.setVisibility(View.VISIBLE);
+                        recyclerViewNotesList.setVisibility(View.INVISIBLE);
+                    }
+                    textViewNoNotes.setVisibility(View.GONE);
+                    return new ApiServiceAsyncTaskLoader(getApplicationContext(), getRequest());
                 }
             default:
                 return null;
@@ -176,9 +181,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         Log.d(TAG, "onLoadFinished()");
         progressBarActionsWithNote.setVisibility(View.GONE);
         smoothProgressBarNotesLoading.setVisibility(View.GONE);
+        recyclerViewNotesList.setVisibility(View.VISIBLE);
         if (data != null) {
             if (data.getResponseModel() != null) {
-                setRequestParameters(null, true);
+                setRequest(null);
                 if (data.getResponseModel().getResult() != null) {
                     handleSuccessResult(data.getApiName(), data.getResponseModel().getResult());
                 } else {
@@ -244,18 +250,21 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
 
     @Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        Log.d(TAG, "onCreateActionMode()");
         mode.getMenuInflater().inflate(R.menu.multi_select_menu, menu);
         return true;
     }
 
     @Override
     public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        Log.d(TAG, "onPrepareActionMode()");
         menu.findItem(R.id.itemDeleteNote).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return true;
     }
 
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        Log.d(TAG, "onActionItemClicked()");
         switch (item.getItemId()) {
             case R.id.itemDeleteNote:
                 if (noteAdapter.getMultiSelectedCount() != 0) {
@@ -268,12 +277,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
 
     @Override
     public void onDestroyActionMode(ActionMode mode) {
+        Log.d(TAG, "onDestroyActionMode()");
         isMultiSelectActionModeActivated = false;
         noteAdapter.clearMultiSelectNotes();
         multiSelectActionMode = null;
         floatingActionButtonAddNote.show();
         dismissSnackBar();
-        setRequestParameters(null, true);
+        setRequest(null);
     }
 
     @Override
@@ -325,26 +335,28 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         Log.d(TAG, "onSaveInstanceState()");
         outState.putSerializable(Constants.KEY_NOTES_LIST, (ArrayList<NoteModel>) noteAdapter.getNotes());
         outState.putInt(Constants.KEY_TOTAL_AMOUNT_OF_NOTES_ON_SERVER, totalAmountOfNotesOnServer);
-        if (baseRequest != null) {
-            outState.putSerializable(Constants.KEY_REQUEST, baseRequest);
+        if (getRequest() != null) {
+            outState.putSerializable(Constants.KEY_REQUEST, getRequest());
         }
         outState.putSerializable(Constants.KEY_MULTI_SELECT_NOTES_POSITIONS,
                 (ArrayList<Integer>) noteAdapter.getMultiSelectNotesPositions());
     }
 
     private void deleteMultiSelectNotes() {
+        Log.d(TAG, "deleteMultiSelectNotes()");
         List<NoteModel> multiSelectNotesList = noteAdapter.getMultiSelectNotes();
         if (!multiSelectNotesList.isEmpty()) {
             long[] datetimeArray = new long[multiSelectNotesList.size()];
             for (int i = 0; i < multiSelectNotesList.size(); i++) {
                 datetimeArray[i] = multiSelectNotesList.get(i).getDatetime();
             }
-            setRequestParameters(new DeleteNotesRequest(new DeleteNotesRequestModel(datetimeArray)), false);
+            setRequest(new DeleteNotesRequest(new DeleteNotesRequestModel(datetimeArray)));
             getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, null, this);
         }
     }
 
     private void multiSelectActionModeActivated() {
+        Log.d(TAG, "multiSelectActionModeActivated()");
         isMultiSelectActionModeActivated = true;
         multiSelectActionMode = startActionMode(this);
         floatingActionButtonAddNote.hide();
@@ -352,6 +364,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     }
 
     private void restoreMultiSelectActionMode(List<Integer> multiSelectNotesPositions) {
+        Log.d(TAG, "restoreMultiSelectActionMode()");
         if (multiSelectNotesPositions != null && !multiSelectNotesPositions.isEmpty()) {
             multiSelectActionModeActivated();
             noteAdapter.addMultiSelectNotes(multiSelectNotesPositions);
@@ -361,6 +374,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     }
 
     private void updateRecyclerViewNotesListListener() {
+        Log.d(TAG, "updateRecyclerViewNotesListListener()");
         recyclerViewNotesList.addOnScrollListener(getEndlessRecyclerScrollListener());
     }
 
@@ -404,7 +418,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
             public void onLoadMore() {
                 Log.d(TAG, "onLoadMore()");
                 if (totalAmountOfNotesOnServer > noteAdapter.getItemCount()) {
-                    smoothProgressBarNotesLoading.setVisibility(View.VISIBLE);
                     downloadNotes(noteAdapter.getItemCount());
                 }
             }
@@ -433,11 +446,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         Log.d(TAG, "initRecyclerViewAdapter()");
         noteAdapter = new NoteAdapter(this, this, this);
         if (notesList == null) {
-            progressBarActionsWithNote.setVisibility(View.VISIBLE);
             downloadNotes(0);
         } else {
             noteAdapter.addNotes(notesList);
-            if (baseRequest != null) {
+            if (getRequest() != null) {
                 showSnackbar(recyclerViewNotesList, getString(R.string.button_repeat),
                         getString(R.string.button_repeat), listener -> {
                             getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, null,
@@ -452,8 +464,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
 
     private void downloadNotes(int startPosition) {
         Log.d(TAG, "downloadNotes()");
-        setRequestParameters(new GetNotesRequest(new GetNotesRequestModel(
-                startPosition, Constants.MAXIMUM_COUNT_OF_NOTES_TO_LOAD)), false);
+        setRequest(new GetNotesRequest(new GetNotesRequestModel(
+                startPosition, Constants.MAXIMUM_COUNT_OF_NOTES_TO_LOAD)));
         getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, null, this);
     }
 }
