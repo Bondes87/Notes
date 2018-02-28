@@ -102,7 +102,6 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
                 return true;
 
             case R.id.itemDeleteNote:
-
                 hideSoftKeyboard();
                 showDeleteNoteDialogFragment();
                 return true;

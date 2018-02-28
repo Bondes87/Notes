@@ -93,6 +93,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                              View.OnClickListener onClickListener) {
         Log.d(TAG, "showSnackbar()");
         Snackbar snackbar = Snackbar.make(view, messageText, duration);
+        snackbar.dismiss();
         if (TextUtils.isEmpty(buttonName) && onClickListener != null) {
             snackbar.setAction(android.R.string.ok, onClickListener);
         }

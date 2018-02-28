@@ -11,11 +11,13 @@ import com.dbondarenko.shpp.notes.api.ApiService;
 import com.dbondarenko.shpp.notes.api.RetrofitHelper;
 import com.dbondarenko.shpp.notes.api.request.AddNoteRequest;
 import com.dbondarenko.shpp.notes.api.request.DeleteNoteRequest;
+import com.dbondarenko.shpp.notes.api.request.DeleteNotesRequest;
 import com.dbondarenko.shpp.notes.api.request.GetNotesRequest;
 import com.dbondarenko.shpp.notes.api.request.UpdateNoteRequest;
 import com.dbondarenko.shpp.notes.api.request.base.BaseRequest;
 import com.dbondarenko.shpp.notes.api.response.AddNoteResponse;
 import com.dbondarenko.shpp.notes.api.response.DeleteNoteResponse;
+import com.dbondarenko.shpp.notes.api.response.DeleteNotesResponse;
 import com.dbondarenko.shpp.notes.api.response.GetNotesResponse;
 import com.dbondarenko.shpp.notes.api.response.UpdateNoteResponse;
 import com.dbondarenko.shpp.notes.models.NoInternetConnectionException;
@@ -72,6 +74,9 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
                 case DELETE_DELETE_NOTE:
                     return gerApiLoaderDeleteNoteResponse(apiService);
 
+                case DELETE_DELETE_NOTES:
+                    return gerApiLoaderDeleteNotesResponse(apiService);
+
                 default:
                     return null;
             }
@@ -86,6 +91,28 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
         cancelLoad();
     }
 
+    private ApiLoaderResponse gerApiLoaderDeleteNotesResponse(ApiService apiService) {
+        Log.d(TAG, "gerApiLoaderDeleteNoteResponse() " + apiService);
+        ApiLoaderResponse<DeleteNotesResponse> apiLoaderDeleteNotesResponse = new ApiLoaderResponse<>();
+        apiLoaderDeleteNotesResponse.setApiName(baseRequest.getApiName());
+        DeleteNotesRequest deleteNotesRequest = (DeleteNotesRequest) baseRequest;
+        long[] datetimeArray = deleteNotesRequest.getRequestModel().getDatetimeArray();
+        if (Util.isInternetConnectionAvailable(getContext().getApplicationContext())) {
+            try {
+                apiLoaderDeleteNotesResponse.setResponse(apiService.deleteNotes(datetimeArray).execute());
+            } catch (Exception e) {
+                e.printStackTrace();
+                apiLoaderDeleteNotesResponse.setException(e);
+            }
+        } else {
+            apiLoaderDeleteNotesResponse.setException(new NoInternetConnectionException(
+                    getContext().getApplicationContext().getString(R.string.error_no_connection)));
+        }
+
+        return apiLoaderDeleteNotesResponse;
+    }
+
+
     private ApiLoaderResponse gerApiLoaderDeleteNoteResponse(ApiService apiService) {
         Log.d(TAG, "gerApiLoaderDeleteNoteResponse() " + apiService);
         ApiLoaderResponse<DeleteNoteResponse> apiLoaderDeleteNoteResponse = new ApiLoaderResponse<>();
@@ -99,7 +126,6 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
                 e.printStackTrace();
                 apiLoaderDeleteNoteResponse.setException(e);
             }
-
         } else {
             apiLoaderDeleteNoteResponse.setException(new NoInternetConnectionException(
                     getContext().getApplicationContext().getString(R.string.error_no_connection)));

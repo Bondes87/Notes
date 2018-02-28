@@ -1,9 +1,7 @@
 package com.dbondarenko.shpp.notes.ui.adapters;
 
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +13,7 @@ import com.dbondarenko.shpp.notes.ui.listeners.OnEmptyListListener;
 import com.dbondarenko.shpp.notes.utils.Util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -57,16 +56,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
     }
 
     @Override
-    public int getItemCount() {
-        Log.d(TAG, "getItemCount()");
-        return notesList.size();
-    }
-
-    @Override
     public void onBindViewHolder(NoteHolder holder, int position) {
-        SparseBooleanArray selectedItemsIds = new SparseBooleanArray();
-        selectedItemsIds.get(position);
-
         Log.d(TAG, "onBindViewHolder()");
         NoteModel note = notesList.get(position);
         holder.textViewNoteMessage.setText(note.getMessage());
@@ -75,44 +65,10 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
         holder.itemView.setActivated(multiSelectNotesPositionsList.contains(position));
     }
 
-    public void addMultiSelectNote(int position) {
-        if (multiSelectNotesPositionsList.contains(position)) {
-            multiSelectNotesPositionsList.remove(multiSelectNotesPositionsList.indexOf(position));
-        } else {
-            multiSelectNotesPositionsList.add(position);
-        }
-        notifyItemChanged(position);
-    }
-
-    public void addMultiSelectNotes(List<Integer> multiSelectNotesPositionsList) {
-        this.multiSelectNotesPositionsList.addAll(multiSelectNotesPositionsList);
-        for (int positionOfNotesList : multiSelectNotesPositionsList) {
-            notifyItemChanged(positionOfNotesList);
-        }
-    }
-
-    public void clearMultiSelectNotes() {
-        for (int positionOfNotesList : multiSelectNotesPositionsList) {
-            notifyItemChanged(positionOfNotesList);
-        }
-        multiSelectNotesPositionsList.clear();
-        // notifyDataSetChanged();
-    }
-
-    public int getMultiSelectedCount() {
-        return multiSelectNotesPositionsList.size();
-    }
-
-    public List<Integer> getMultiSelectNotesPositions() {
-        return multiSelectNotesPositionsList;
-    }
-
-    public List<NoteModel> getMultiSelectNotes() {
-        List<NoteModel> multiSelectNotesList = new ArrayList<>();
-        for (int positionOfNotesList : multiSelectNotesPositionsList) {
-            multiSelectNotesList.add(notesList.get(positionOfNotesList));
-        }
-        return multiSelectNotesList;
+    @Override
+    public int getItemCount() {
+        Log.d(TAG, "getItemCount()");
+        return notesList.size();
     }
 
     public void addNotes(List<NoteModel> notes) {
@@ -124,13 +80,8 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
 
     public void addNote(NoteModel note) {
         Log.d(TAG, "addNote() " + note);
-        addNote(note, 0);
-    }
-
-    public void addNote(NoteModel note, int notePosition) {
-        Log.d(TAG, "addNote(): " + note + ", " + notePosition);
-        notesList.add(notePosition, note);
-        notifyItemInserted(notePosition);
+        notesList.add(0, note);
+        notifyItemInserted(0);
         checkListForEmptiness();
     }
 
@@ -154,6 +105,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
     }
 
     public void clearNotesFromAdapter() {
+        Log.d(TAG, "clearNotesFromAdapter()");
         int size = notesList.size();
         notesList.clear();
         notifyItemRangeRemoved(0, size);
@@ -165,14 +117,67 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
     }
 
     public void checkListForEmptiness() {
+        Log.d(TAG, "checkListForEmptiness()");
         onEmptyListListener.onEmptyList(notesList.size() == 0);
     }
 
-    public static class NoteHolder extends RecyclerView.ViewHolder {
+    public void addMultiSelectNote(int position) {
+        Log.d(TAG, "addMultiSelectNote()");
+        if (multiSelectNotesPositionsList.contains(position)) {
+            multiSelectNotesPositionsList.remove(multiSelectNotesPositionsList.indexOf(position));
+        } else {
+            multiSelectNotesPositionsList.add(position);
+        }
+        notifyItemChanged(position);
+    }
+
+    public void addMultiSelectNotes(List<Integer> multiSelectNotesPositionsList) {
+        Log.d(TAG, "addMultiSelectNotes()");
+        this.multiSelectNotesPositionsList.addAll(multiSelectNotesPositionsList);
+        for (int positionOfNotesList : multiSelectNotesPositionsList) {
+            notifyItemChanged(positionOfNotesList);
+        }
+    }
+
+    public void clearMultiSelectNotes() {
+        Log.d(TAG, "clearMultiSelectNotes()");
+        for (int positionOfNotesList : multiSelectNotesPositionsList) {
+            notifyItemChanged(positionOfNotesList);
+        }
+        multiSelectNotesPositionsList.clear();
+    }
+
+    public int getMultiSelectedCount() {
+        Log.d(TAG, "getMultiSelectedCount()");
+        return multiSelectNotesPositionsList.size();
+    }
+
+    public List<Integer> getMultiSelectNotesPositions() {
+        Log.d(TAG, "getMultiSelectNotesPositions()");
+        return multiSelectNotesPositionsList;
+    }
+
+    public List<NoteModel> getMultiSelectNotes() {
+        Log.d(TAG, "getMultiSelectNotes()");
+        List<NoteModel> multiSelectNotesList = new ArrayList<>();
+        for (int positionOfNotesList : multiSelectNotesPositionsList) {
+            multiSelectNotesList.add(notesList.get(positionOfNotesList));
+        }
+        return multiSelectNotesList;
+    }
+
+    public void deleteMultiSelectNotes() {
+        Log.d(TAG, "deleteMultiSelectNotes()");
+        Collections.sort(multiSelectNotesPositionsList, Collections.reverseOrder());
+        for (int position : multiSelectNotesPositionsList) {
+            deleteNote(position);
+        }
+    }
+
+    static class NoteHolder extends RecyclerView.ViewHolder {
 
         private static final String TAG = NoteHolder.class.getSimpleName();
 
-        public ConstraintLayout constraintLayoutForeground;
         private TextView textViewNoteMessage;
         private TextView textViewNoteDate;
         private TextView textViewNoteTime;
@@ -184,7 +189,6 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
         }
 
         private void initViews(View itemView) {
-            constraintLayoutForeground = itemView.findViewById(R.id.constraintLayoutForeground);
             textViewNoteMessage = itemView.findViewById(R.id.textViewNoteMessage);
             textViewNoteDate = itemView.findViewById(R.id.textViewNoteDate);
             textViewNoteTime = itemView.findViewById(R.id.textViewNoteTime);

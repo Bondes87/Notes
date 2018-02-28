@@ -4,14 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.ActionMode;
@@ -27,14 +25,12 @@ import com.dbondarenko.shpp.notes.Constants;
 import com.dbondarenko.shpp.notes.R;
 import com.dbondarenko.shpp.notes.api.ApiLoaderResponse;
 import com.dbondarenko.shpp.notes.api.ApiName;
-import com.dbondarenko.shpp.notes.api.request.AddNoteRequest;
-import com.dbondarenko.shpp.notes.api.request.DeleteNoteRequest;
+import com.dbondarenko.shpp.notes.api.request.DeleteNotesRequest;
 import com.dbondarenko.shpp.notes.api.request.GetNotesRequest;
 import com.dbondarenko.shpp.notes.api.request.base.BaseRequest;
-import com.dbondarenko.shpp.notes.api.request.models.AddNoteRequestModel;
-import com.dbondarenko.shpp.notes.api.request.models.DeleteNoteRequestModel;
+import com.dbondarenko.shpp.notes.api.request.models.DeleteNotesRequestModel;
 import com.dbondarenko.shpp.notes.api.request.models.GetNotesRequestModel;
-import com.dbondarenko.shpp.notes.api.response.model.DeleteNoteResultModel;
+import com.dbondarenko.shpp.notes.api.response.model.DeleteNotesResultModel;
 import com.dbondarenko.shpp.notes.api.response.model.GetNotesResultModel;
 import com.dbondarenko.shpp.notes.api.response.model.base.BaseErrorModel;
 import com.dbondarenko.shpp.notes.api.response.model.base.BaseResultModel;
@@ -46,7 +42,6 @@ import com.dbondarenko.shpp.notes.ui.listeners.OnEmptyListListener;
 import com.dbondarenko.shpp.notes.ui.listeners.OnEndlessRecyclerScrollListener;
 import com.dbondarenko.shpp.notes.ui.loaders.ApiServiceAsyncTaskLoader;
 import com.dbondarenko.shpp.notes.ui.widgets.MarginDecoration;
-import com.dbondarenko.shpp.notes.ui.widgets.RecyclerItemTouchHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,15 +118,16 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         switch (v.getId()) {
             case R.id.floatingActionButtonAddNote:
                 setRequestParameters(null, true);
-                startActivityForResult(new Intent(this, NoteActivity.class), Constants.REQUEST_CODE_NOTE_ACTIVITY);
+                startActivityForResult(new Intent(this, NoteActivity.class),
+                        Constants.REQUEST_CODE_NOTE_ACTIVITY);
                 break;
 
             case R.id.itemContainerCardView:
                 int position = recyclerViewNotesList.getChildAdapterPosition(v);
                 if (isMultiSelectActionModeActivated) {
                     noteAdapter.addMultiSelectNote(position);
-                    multiSelectActionMode.setTitle(getString(R.string.title_action_mode, noteAdapter
-                            .getMultiSelectedCount()));
+                    multiSelectActionMode.setTitle(getString(R.string.title_action_mode,
+                            noteAdapter.getMultiSelectedCount()));
                 } else {
                     Intent intentToStartNoteActivity = new Intent(this, NoteActivity.class);
                     intentToStartNoteActivity.putExtra(Constants.KEY_NOTE, noteAdapter.getNote(position));
@@ -155,16 +151,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 }
             default:
                 return false;
-        }
-    }
-
-    @Override
-    public void onEmptyList(boolean isEmptyList) {
-        Log.d(TAG, "onEmptyList()");
-        if (isEmptyList) {
-            textViewNoNotes.setVisibility(View.VISIBLE);
-        } else {
-            textViewNoNotes.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -201,8 +187,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                     if (data.getException() instanceof NoInternetConnectionException) {
                         showSnackbar(recyclerViewNotesList, data.getException().getMessage(),
                                 getString(R.string.button_repeat), listener -> {
-                                    getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, null,
-                                            this);
+                                    getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE,
+                                            null, this);
                                 });
                     } else {
                         showSnackbar(recyclerViewNotesList, getString(R.string.error_server_is_not_responding));
@@ -242,17 +228,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 }
                 break;
 
-            case DELETE_DELETE_NOTE:
-                DeleteNoteResultModel deleteNoteResultModel = (DeleteNoteResultModel) baseResultModel;
-                if (deleteNoteResultModel.isDeleted() &&
-                        totalAmountOfNotesOnServer > 0 &&
-                        totalAmountOfNotesOnServer != noteAdapter.getItemCount() &&
-                        ((LinearLayoutManager) recyclerViewNotesList.getLayoutManager())
-                                .findLastVisibleItemPosition() + 1 == noteAdapter.getItemCount()) {
-                    smoothProgressBarNotesLoading.setVisibility(View.VISIBLE);
-                    downloadNotes(noteAdapter.getItemCount());
+            case DELETE_DELETE_NOTES:
+                DeleteNotesResultModel deleteNotesResultModel = (DeleteNotesResultModel) baseResultModel;
+                if (deleteNotesResultModel.isDeleted()) {
+                    noteAdapter.deleteMultiSelectNotes();
+                    multiSelectActionMode.finish();
+                    showToast(getApplicationContext(), getString(R.string.text_note_deleted));
                 }
-                break;
         }
     }
 
@@ -272,8 +254,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
         switch (item.getItemId()) {
             case R.id.itemDeleteNote:
-
-                //Todo: delete notes;
+                if (noteAdapter.getMultiSelectedCount() != 0) {
+                    deleteMultiSelectNotes();
+                }
                 return true;
         }
         return false;
@@ -285,6 +268,16 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         noteAdapter.clearMultiSelectNotes();
         multiSelectActionMode = null;
         floatingActionButtonAddNote.show();
+    }
+
+    @Override
+    public void onEmptyList(boolean isEmptyList) {
+        Log.d(TAG, "onEmptyList()");
+        if (isEmptyList) {
+            textViewNoNotes.setVisibility(View.VISIBLE);
+        } else {
+            textViewNoNotes.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override
@@ -333,6 +326,18 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 (ArrayList<Integer>) noteAdapter.getMultiSelectNotesPositions());
     }
 
+    private void deleteMultiSelectNotes() {
+        List<NoteModel> multiSelectNotesList = noteAdapter.getMultiSelectNotes();
+        if (!multiSelectNotesList.isEmpty()) {
+            long[] datetimeArray = new long[multiSelectNotesList.size()];
+            for (int i = 0; i < multiSelectNotesList.size(); i++) {
+                datetimeArray[i] = multiSelectNotesList.get(i).getDatetime();
+            }
+            setRequestParameters(new DeleteNotesRequest(new DeleteNotesRequestModel(datetimeArray)), false);
+            getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, null, this);
+        }
+    }
+
     private void multiSelectActionModeActivated() {
         isMultiSelectActionModeActivated = true;
         multiSelectActionMode = startActionMode(this);
@@ -344,6 +349,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         if (multiSelectNotesPositions != null && !multiSelectNotesPositions.isEmpty()) {
             multiSelectActionModeActivated();
             noteAdapter.addMultiSelectNotes(multiSelectNotesPositions);
+            multiSelectActionMode.setTitle(getString(R.string.title_action_mode,
+                    noteAdapter.getMultiSelectedCount()));
         }
     }
 
@@ -379,50 +386,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         initRecyclerViewAdapter(notesList);
         recyclerViewNotesList.setAdapter(noteAdapter);
         recyclerViewNotesList.addOnScrollListener(getEndlessRecyclerScrollListener());
-        new ItemTouchHelper(getRecyclerItemTouchHelper()).attachToRecyclerView(recyclerViewNotesList);
-    }
 
-    @NonNull
-    private RecyclerItemTouchHelper getRecyclerItemTouchHelper() {
-        Log.d(TAG, "getRecyclerItemTouchHelper()");
-        return new RecyclerItemTouchHelper(0, ItemTouchHelper.LEFT,
-                (viewHolder, direction, position) -> {
-                    NoteModel note = noteAdapter.getNote(position);
-                    totalAmountOfNotesOnServer--;
-                    noteAdapter.deleteNote(position);
-                    deleteNote(note);
-                    reportOnDeletingNote(note, position);
-                });
-    }
-
-    private void deleteNote(NoteModel note) {
-        Log.d(TAG, "deleteNote()");
-        setRequestParameters(new DeleteNoteRequest(new DeleteNoteRequestModel(note.getDatetime())), false);
-        getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, null, this);
-    }
-
-    private void reportOnDeletingNote(NoteModel note, int position) {
-        Log.d(TAG, "reportOnDeletingNote()");
-        Snackbar snackbar = Snackbar.make(recyclerViewNotesList, getString(R.string.text_note_deleted),
-                Snackbar.LENGTH_SHORT);
-        snackbar.setAction(getString(R.string.button_cancel), new View.OnClickListener() {
-            @Override
-            public void onClick(View cancelButton) {
-                totalAmountOfNotesOnServer++;
-                noteAdapter.addNote(note, position);
-                if (MainActivity.this.isStartOrEndNotePosition(position)) {
-                    recyclerViewNotesList.scrollToPosition(position);
-                }
-                setRequestParameters(new AddNoteRequest(new AddNoteRequestModel(note)), false);
-                getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE, null, MainActivity.this);
-            }
-        });
-        snackbar.setActionTextColor(getResources().getColor(R.color.colorAccent));
-        snackbar.show();
-    }
-
-    private boolean isStartOrEndNotePosition(int currentPosition) {
-        return currentPosition == 0 || currentPosition == noteAdapter.getItemCount() - 1;
     }
 
     @NonNull
