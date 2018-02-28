@@ -242,7 +242,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 DeleteNotesResultModel deleteNotesResultModel = (DeleteNotesResultModel) baseResultModel;
                 if (deleteNotesResultModel.isDeleted()) {
                     noteAdapter.deleteMultiSelectNotes();
+                    totalAmountOfNotesOnServer = totalAmountOfNotesOnServer - noteAdapter.getMultiSelectedCount();
                     multiSelectActionMode.finish();
+                    if (noteAdapter.getItemCount() < 10 && totalAmountOfNotesOnServer > 0
+                            && noteAdapter.getItemCount() != totalAmountOfNotesOnServer) {
+                        downloadNotes(noteAdapter.getItemCount());
+                    }
                     showToast(getApplicationContext(), getString(R.string.text_note_deleted));
                 }
         }
