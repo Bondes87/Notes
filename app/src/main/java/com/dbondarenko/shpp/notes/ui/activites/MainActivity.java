@@ -104,6 +104,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 noteAdapter.clearNotesFromAdapter();
                 totalAmountOfNotesOnServer = 0;
                 updateRecyclerViewNotesListListener();
+                dismissSnackBar();
+                setRequestParameters(null, true);
                 downloadNotes(noteAdapter.getItemCount());
                 return true;
 
@@ -120,6 +122,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 setRequestParameters(null, true);
                 startActivityForResult(new Intent(this, NoteActivity.class),
                         Constants.REQUEST_CODE_NOTE_ACTIVITY);
+                dismissSnackBar();
+                setRequestParameters(null, true);
                 break;
 
             case R.id.itemContainerCardView:
@@ -268,6 +272,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         noteAdapter.clearMultiSelectNotes();
         multiSelectActionMode = null;
         floatingActionButtonAddNote.show();
+        dismissSnackBar();
+        setRequestParameters(null, true);
     }
 
     @Override

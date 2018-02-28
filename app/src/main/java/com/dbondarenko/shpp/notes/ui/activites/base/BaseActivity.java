@@ -29,6 +29,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     public BaseRequest baseRequest;
     public boolean isLoaderSuccess;
 
+    private Snackbar snackbar;
+
     public BaseActivity() {
         TAG = getClass().getSimpleName();
     }
@@ -76,6 +78,22 @@ public abstract class BaseActivity extends AppCompatActivity {
         Log.d(TAG, "onDestroy()");
     }
 
+    @Override
+    public void onBackPressed() {
+        if (snackbar != null && snackbar.isShown()) {
+            snackbar.dismiss();
+            setRequestParameters(null, true);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    public void dismissSnackBar() {
+        if (snackbar != null && snackbar.isShown()) {
+            snackbar.dismiss();
+        }
+    }
+
     public void showSnackbar(View view, String message) {
         showSnackbar(view, message, null, Snackbar.LENGTH_INDEFINITE, null);
     }
@@ -92,8 +110,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     public void showSnackbar(View view, String messageText, String buttonName, int duration,
                              View.OnClickListener onClickListener) {
         Log.d(TAG, "showSnackbar()");
-        Snackbar snackbar = Snackbar.make(view, messageText, duration);
-        snackbar.dismiss();
+        snackbar = Snackbar.make(view, messageText, duration);
         if (TextUtils.isEmpty(buttonName) && onClickListener != null) {
             snackbar.setAction(android.R.string.ok, onClickListener);
         }
