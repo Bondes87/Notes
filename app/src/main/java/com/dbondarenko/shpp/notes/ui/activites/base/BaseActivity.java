@@ -9,10 +9,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.dbondarenko.shpp.notes.api.ApiName;
-import com.dbondarenko.shpp.notes.models.api.request.base.BaseRequest;
 import com.dbondarenko.shpp.core.models.responses.models.base.BaseErrorModel;
 import com.dbondarenko.shpp.core.models.responses.models.base.BaseResultModel;
+import com.dbondarenko.shpp.notes.api.ApiName;
+import com.dbondarenko.shpp.notes.models.api.request.base.BaseRequest;
 
 /**
  * File: BaseActivity.java
@@ -106,6 +106,10 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     public void showSnackbar(View view, String message) {
         showSnackbar(view, message, null, Snackbar.LENGTH_INDEFINITE, null);
+    }
+
+    public void showSnackbar(View view, String message, int duration) {
+        showSnackbar(view, message, null, duration, null);
     }
 
     public void showSnackbar(View view, String message, String buttonName,

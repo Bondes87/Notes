@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
@@ -21,21 +22,21 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.dbondarenko.shpp.core.models.NoteModel;
+import com.dbondarenko.shpp.core.models.responses.models.DeleteNotesResultModel;
+import com.dbondarenko.shpp.core.models.responses.models.GetNotesResultModel;
+import com.dbondarenko.shpp.core.models.responses.models.base.BaseErrorModel;
+import com.dbondarenko.shpp.core.models.responses.models.base.BaseResultModel;
 import com.dbondarenko.shpp.notes.Constants;
 import com.dbondarenko.shpp.notes.R;
-import com.dbondarenko.shpp.notes.models.api.ApiLoaderResponse;
 import com.dbondarenko.shpp.notes.api.ApiName;
+import com.dbondarenko.shpp.notes.models.api.ApiLoaderResponse;
 import com.dbondarenko.shpp.notes.models.api.request.DeleteNotesRequest;
 import com.dbondarenko.shpp.notes.models.api.request.GetNotesRequest;
 import com.dbondarenko.shpp.notes.models.api.request.base.BaseRequest;
 import com.dbondarenko.shpp.notes.models.api.request.models.DeleteNotesRequestModel;
 import com.dbondarenko.shpp.notes.models.api.request.models.GetNotesRequestModel;
-import com.dbondarenko.shpp.core.models.responses.models.DeleteNotesResultModel;
-import com.dbondarenko.shpp.core.models.responses.models.GetNotesResultModel;
-import com.dbondarenko.shpp.core.models.responses.models.base.BaseErrorModel;
-import com.dbondarenko.shpp.core.models.responses.models.base.BaseResultModel;
 import com.dbondarenko.shpp.notes.models.exception.NoInternetConnectionException;
-import com.dbondarenko.shpp.core.models.NoteModel;
 import com.dbondarenko.shpp.notes.ui.activites.base.BaseActivity;
 import com.dbondarenko.shpp.notes.ui.adapters.NoteAdapter;
 import com.dbondarenko.shpp.notes.ui.fragments.ActionDialogFragment;
@@ -272,6 +273,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
             case R.id.itemDeleteNotes:
                 if (noteAdapter.getMultiSelectedCount() != 0) {
                     showDeleteNotesDialogFragment();
+                } else {
+                    showSnackbar(recyclerViewNotesList, getString(R.string.error_did_not_select_notes),
+                            Snackbar.LENGTH_LONG);
                 }
                 return true;
 
