@@ -12,7 +12,6 @@ import android.widget.TextView;
 import com.dbondarenko.shpp.notes.R;
 import com.dbondarenko.shpp.notes.models.NoteModel;
 import com.dbondarenko.shpp.notes.ui.listeners.OnEmptyListListener;
-import com.dbondarenko.shpp.notes.ui.listeners.OnListItemClickListener;
 import com.dbondarenko.shpp.notes.utils.Util;
 
 import java.util.ArrayList;
@@ -26,30 +25,24 @@ import java.util.List;
  *         Time: 18:34
  *         E-mail: bondes87@gmail.com
  */
-public class NoteAdapter extends
-        RecyclerView.Adapter<NoteAdapter.NoteHolder> {
+public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
 
     private static final String TAG = NoteAdapter.class.getSimpleName();
-    static boolean isMultiSelectActivated;
-    private OnListItemClickListener onListItemClickListener;
+
     private OnEmptyListListener onEmptyListListener;
+    private View.OnClickListener onClickListener;
+    private View.OnLongClickListener onLongClickListener;
     private List<Integer> multiSelectNotesPositionsList;
     private List<NoteModel> notesList;
 
-    public NoteAdapter(OnListItemClickListener onListItemClickListener,
-                       OnEmptyListListener onEmptyListListener) {
+    public NoteAdapter(OnEmptyListListener onEmptyListListener,
+                       View.OnLongClickListener onLongClickListener,
+                       View.OnClickListener onClickListener) {
         notesList = new ArrayList<>();
         multiSelectNotesPositionsList = new ArrayList<>();
-        this.onListItemClickListener = onListItemClickListener;
         this.onEmptyListListener = onEmptyListListener;
-    }
-
-    public static boolean isMultiSelectActivated() {
-        return isMultiSelectActivated;
-    }
-
-    public static void setMultiSelectActivated(boolean isMultiSelectActivated) {
-        NoteAdapter.isMultiSelectActivated = isMultiSelectActivated;
+        this.onLongClickListener = onLongClickListener;
+        this.onClickListener = onClickListener;
     }
 
     @Override
@@ -57,7 +50,10 @@ public class NoteAdapter extends
         Log.d(TAG, "onCreateViewHolder()");
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.notes_list_item, parent, false);
-        return new NoteHolder(itemView, onListItemClickListener);
+        NoteHolder noteHolder = new NoteHolder(itemView);
+        itemView.setOnLongClickListener(onLongClickListener);
+        itemView.setOnClickListener(onClickListener);
+        return noteHolder;
     }
 
     @Override
@@ -172,8 +168,7 @@ public class NoteAdapter extends
         onEmptyListListener.onEmptyList(notesList.size() == 0);
     }
 
-    public static class NoteHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View
-            .OnLongClickListener {
+    public static class NoteHolder extends RecyclerView.ViewHolder {
 
         private static final String TAG = NoteHolder.class.getSimpleName();
 
@@ -182,36 +177,10 @@ public class NoteAdapter extends
         private TextView textViewNoteDate;
         private TextView textViewNoteTime;
 
-        private OnListItemClickListener onListItemClickListener;
-
-        NoteHolder(View itemView, OnListItemClickListener onListItemClickListener) {
+        NoteHolder(View itemView) {
             super(itemView);
             Log.d(TAG, "NoteHolder()");
-            this.onListItemClickListener = onListItemClickListener;
             initViews(itemView);
-            itemView.setOnClickListener(this);
-            itemView.setOnLongClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            Log.d(TAG, "onClick()");
-            if (onListItemClickListener != null) {
-                onListItemClickListener.onClickListItem(getAdapterPosition());
-            }
-        }
-
-        @Override
-        public boolean onLongClick(View v) {
-            if (!isMultiSelectActivated) {
-                isMultiSelectActivated = true;
-                onListItemClickListener.onMultiSelectActivated();
-                if (onListItemClickListener != null) {
-                    onListItemClickListener.onClickListItem(getAdapterPosition());
-                }
-                return true;
-            }
-            return false;
         }
 
         private void initViews(View itemView) {

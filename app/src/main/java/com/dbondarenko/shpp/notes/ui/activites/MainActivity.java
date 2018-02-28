@@ -44,7 +44,6 @@ import com.dbondarenko.shpp.notes.ui.activites.base.BaseActivity;
 import com.dbondarenko.shpp.notes.ui.adapters.NoteAdapter;
 import com.dbondarenko.shpp.notes.ui.listeners.OnEmptyListListener;
 import com.dbondarenko.shpp.notes.ui.listeners.OnEndlessRecyclerScrollListener;
-import com.dbondarenko.shpp.notes.ui.listeners.OnListItemClickListener;
 import com.dbondarenko.shpp.notes.ui.loaders.ApiServiceAsyncTaskLoader;
 import com.dbondarenko.shpp.notes.ui.widgets.MarginDecoration;
 import com.dbondarenko.shpp.notes.ui.widgets.RecyclerItemTouchHelper;
@@ -55,9 +54,8 @@ import java.util.List;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener,
-        OnEmptyListListener, OnListItemClickListener, LoaderManager.LoaderCallbacks<ApiLoaderResponse>,
-        ActionMode.Callback {
-
+        View.OnLongClickListener, OnEmptyListListener,
+        LoaderManager.LoaderCallbacks<ApiLoaderResponse>, ActionMode.Callback {
 
     private FloatingActionButton floatingActionButtonAddNote;
     private RecyclerView recyclerViewNotesList;
@@ -68,6 +66,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     private ActionMode multiSelectActionMode;
     private NoteAdapter noteAdapter;
 
+    private boolean isMultiSelectActionModeActivated;
     private int totalAmountOfNotesOnServer;
 
     @Override
@@ -125,6 +124,37 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
             case R.id.floatingActionButtonAddNote:
                 setRequestParameters(null, true);
                 startActivityForResult(new Intent(this, NoteActivity.class), Constants.REQUEST_CODE_NOTE_ACTIVITY);
+                break;
+
+            case R.id.itemContainerCardView:
+                int position = recyclerViewNotesList.getChildAdapterPosition(v);
+                if (isMultiSelectActionModeActivated) {
+                    noteAdapter.addMultiSelectNote(position);
+                    multiSelectActionMode.setTitle(getString(R.string.title_action_mode, noteAdapter
+                            .getMultiSelectedCount()));
+                } else {
+                    Intent intentToStartNoteActivity = new Intent(this, NoteActivity.class);
+                    intentToStartNoteActivity.putExtra(Constants.KEY_NOTE, noteAdapter.getNote(position));
+                    intentToStartNoteActivity.putExtra(Constants.KEY_NOTE_POSITION, position);
+                    setRequestParameters(null, true);
+                    startActivityForResult(intentToStartNoteActivity, Constants.REQUEST_CODE_NOTE_ACTIVITY);
+                }
+                break;
+        }
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        Log.d(TAG, "onLongClick()");
+        switch (v.getId()) {
+            case R.id.itemContainerCardView:
+                if (!isMultiSelectActionModeActivated) {
+                    noteAdapter.addMultiSelectNote(recyclerViewNotesList.getChildAdapterPosition(v));
+                    multiSelectActionModeActivated();
+                    return true;
+                }
+            default:
+                return false;
         }
     }
 
@@ -136,32 +166,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         } else {
             textViewNoNotes.setVisibility(View.INVISIBLE);
         }
-    }
-
-    @Override
-    public void onClickListItem(int position) {
-        Log.d(TAG, "onClickListItem()");
-        if (NoteAdapter.isMultiSelectActivated()) {
-            noteAdapter.addMultiSelectNote(position);
-            multiSelectActionMode.setTitle(getString(R.string.title_action_mode, noteAdapter.getMultiSelectedCount()));
-        } else {
-            Intent intentToStartNoteActivity = new Intent(this, NoteActivity.class);
-            intentToStartNoteActivity.putExtra(Constants.KEY_NOTE, noteAdapter.getNote(position));
-            intentToStartNoteActivity.putExtra(Constants.KEY_NOTE_POSITION, position);
-            setRequestParameters(null, true);
-            startActivityForResult(intentToStartNoteActivity, Constants.REQUEST_CODE_NOTE_ACTIVITY);
-        }
-    }
-
-    @Override
-    public void onMultiSelectActivated() {
-        multiSelectActionMode = startActionMode(this);
-        floatingActionButtonAddNote.animate()
-                .y(((View) floatingActionButtonAddNote.getParent()).getHeight())
-                .alpha(0)
-                .setInterpolator(new AccelerateInterpolator())
-                .start();
-        multiSelectActionMode.setTitle(getString(R.string.title_action_mode, noteAdapter.getMultiSelectedCount()));
     }
 
     @Override
@@ -277,9 +281,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
 
     @Override
     public void onDestroyActionMode(ActionMode mode) {
-        NoteAdapter.setMultiSelectActivated(false);
+        isMultiSelectActionModeActivated = false;
         noteAdapter.clearMultiSelectNotes();
         multiSelectActionMode = null;
+        floatingActionButtonAddNote.show();
     }
 
     @Override
@@ -328,10 +333,16 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 (ArrayList<Integer>) noteAdapter.getMultiSelectNotesPositions());
     }
 
+    private void multiSelectActionModeActivated() {
+        isMultiSelectActionModeActivated = true;
+        multiSelectActionMode = startActionMode(this);
+        floatingActionButtonAddNote.hide();
+        multiSelectActionMode.setTitle(getString(R.string.title_action_mode, noteAdapter.getMultiSelectedCount()));
+    }
+
     private void restoreMultiSelectActionMode(List<Integer> multiSelectNotesPositions) {
         if (multiSelectNotesPositions != null && !multiSelectNotesPositions.isEmpty()) {
-            NoteAdapter.setMultiSelectActivated(true);
-            onMultiSelectActivated();
+            multiSelectActionModeActivated();
             noteAdapter.addMultiSelectNotes(multiSelectNotesPositions);
         }
     }
@@ -450,7 +461,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
 
     private void initRecyclerViewAdapter(List<NoteModel> notesList) {
         Log.d(TAG, "initRecyclerViewAdapter()");
-        noteAdapter = new NoteAdapter(this, this);
+        noteAdapter = new NoteAdapter(this, this, this);
         if (notesList == null) {
             progressBarActionsWithNote.setVisibility(View.VISIBLE);
             downloadNotes(0);
