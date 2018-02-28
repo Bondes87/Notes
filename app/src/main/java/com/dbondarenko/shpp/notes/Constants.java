@@ -21,6 +21,7 @@ public class Constants {
     public static final String KEY_NOTES_LIST = "KeyNotesList";
     public static final String KEY_TOTAL_AMOUNT_OF_NOTES_ON_SERVER = "KeyTotalAmountOfNotesOnServer";
     public static final String KEY_MULTI_SELECT_NOTES_POSITIONS = "KeyMultiSelectNotesPositions";
+    public static final String KEY_MULTI_SELECT_ACTION_MODE_ACTIVATED = "KeyMultiSelectActionModeActivated";
     public static final String KEY_ACTION_DIALOG_TITLE = "KeyActionDialogTitle";
     public static final String KEY_ACTION_DIALOG_MESSAGE = "KeyActionDialogMessage";
     public static final String KEY_ACTION_POSITIVE_BUTTON_TITLE = "KeyActionPositiveButtonTitle";

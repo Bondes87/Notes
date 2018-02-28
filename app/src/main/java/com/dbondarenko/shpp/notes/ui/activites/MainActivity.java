@@ -84,6 +84,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
             initRecyclerView((ArrayList<NoteModel>) savedInstanceState.getSerializable(Constants.KEY_NOTES_LIST));
             List<Integer> multiSelectNotesPositions = (ArrayList<Integer>) savedInstanceState.getSerializable(Constants
                     .KEY_MULTI_SELECT_NOTES_POSITIONS);
+            isMultiSelectActionModeActivated = savedInstanceState.getBoolean(Constants
+                    .KEY_MULTI_SELECT_ACTION_MODE_ACTIVATED);
             restoreMultiSelectActionMode(multiSelectNotesPositions);
         } else {
             initRecyclerView(null);
@@ -391,6 +393,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         }
         outState.putSerializable(Constants.KEY_MULTI_SELECT_NOTES_POSITIONS,
                 (ArrayList<Integer>) noteAdapter.getMultiSelectNotesPositions());
+        outState.putBoolean(Constants.KEY_MULTI_SELECT_ACTION_MODE_ACTIVATED, isMultiSelectActionModeActivated);
     }
 
     private void showDeleteNotesDialogFragment() {
@@ -438,7 +441,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
 
     private void restoreMultiSelectActionMode(List<Integer> multiSelectNotesPositions) {
         Log.d(TAG, "restoreMultiSelectActionMode()");
-        if (multiSelectNotesPositions != null) {
+        if (multiSelectNotesPositions != null && isMultiSelectActionModeActivated) {
             multiSelectActionModeActivated();
             noteAdapter.addMultiSelectNotes(multiSelectNotesPositions);
             multiSelectActionMode.setTitle(getString(R.string.title_action_mode,
