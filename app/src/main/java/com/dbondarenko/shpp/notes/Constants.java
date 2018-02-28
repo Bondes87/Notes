@@ -21,12 +21,18 @@ public class Constants {
     public static final String KEY_NOTES_LIST = "KeyNotesList";
     public static final String KEY_TOTAL_AMOUNT_OF_NOTES_ON_SERVER = "KeyTotalAmountOfNotesOnServer";
     public static final String KEY_MULTI_SELECT_NOTES_POSITIONS = "KeyMultiSelectNotesPositions";
+    public static final String KEY_ACTION_DIALOG_TITLE = "KeyActionDialogTitle";
+    public static final String KEY_ACTION_DIALOG_MESSAGE = "KeyActionDialogMessage";
+    public static final String KEY_ACTION_POSITIVE_BUTTON_TITLE = "KeyActionPositiveButtonTitle";
+    public static final String KEY_ACTION_NEGATIVE_BUTTON_TITLE = "KeyActionNegativeButtonTitle";
 
     // Identifiers for async task loaders
     public static final int LOADER_ID_API_SERVICE = 1;
 
     // Tag for creating dialog fragment for confirmation to delete note.
-    public static final String TAG_OF_DELETE_NOTE_DIALOG_FRAGMENT = "DeleteNoteDialogFragment";
+    public static final String TAG_DELETE_NOTE_DIALOG_FRAGMENT = "DeleteNoteDialogFragment";
+    public static final String TAG_DELETE_NOTES_DIALOG_FRAGMENT = "DeleteNotesDialogFragment";
+    public static final String TAG_REFRESH_DIALOG_FRAGMENT = "RefreshDialogFragment";
 
     // Codes for exchanging data between activities.
     public static final int REQUEST_CODE_NOTE_ACTIVITY = 101;

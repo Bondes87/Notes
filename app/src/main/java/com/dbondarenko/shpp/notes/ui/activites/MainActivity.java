@@ -38,8 +38,10 @@ import com.dbondarenko.shpp.notes.models.NoInternetConnectionException;
 import com.dbondarenko.shpp.notes.models.NoteModel;
 import com.dbondarenko.shpp.notes.ui.activites.base.BaseActivity;
 import com.dbondarenko.shpp.notes.ui.adapters.NoteAdapter;
+import com.dbondarenko.shpp.notes.ui.fragments.ActionDialogFragment;
 import com.dbondarenko.shpp.notes.ui.listeners.OnEmptyListListener;
 import com.dbondarenko.shpp.notes.ui.listeners.OnEndlessRecyclerScrollListener;
+import com.dbondarenko.shpp.notes.ui.listeners.OnResultDialogListener;
 import com.dbondarenko.shpp.notes.ui.loaders.ApiServiceAsyncTaskLoader;
 import com.dbondarenko.shpp.notes.ui.widgets.MarginDecoration;
 
@@ -49,7 +51,7 @@ import java.util.List;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener,
-        View.OnLongClickListener, OnEmptyListListener,
+        View.OnLongClickListener, OnEmptyListListener, OnResultDialogListener,
         LoaderManager.LoaderCallbacks<ApiLoaderResponse>, ActionMode.Callback {
 
     private FloatingActionButton floatingActionButtonAddNote;
@@ -100,12 +102,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         switch (item.getItemId()) {
 
             case R.id.itemRefresh:
-                noteAdapter.clearNotesFromAdapter();
-                totalAmountOfNotesOnServer = 0;
-                updateRecyclerViewNotesListListener();
-                dismissSnackBar();
-                setRequest(null);
-                downloadNotes(noteAdapter.getItemCount());
+                showRefreshDialogFragment();
                 return true;
 
             default:
@@ -273,7 +270,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         switch (item.getItemId()) {
             case R.id.itemDeleteNote:
                 if (noteAdapter.getMultiSelectedCount() != 0) {
-                    deleteMultiSelectNotes();
+                    showDeleteNotesDialogFragment();
                 }
                 return true;
         }
@@ -289,6 +286,37 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         floatingActionButtonAddNote.show();
         dismissSnackBar();
         setRequest(null);
+    }
+
+    @Override
+    public void onDialogPositiveClicked(String dialogFragmentTag) {
+        Log.d(TAG, "onDialogPositiveClicked()");
+        switch (dialogFragmentTag) {
+            case Constants.TAG_DELETE_NOTES_DIALOG_FRAGMENT:
+                deleteMultiSelectNotes();
+                break;
+
+            case Constants.TAG_REFRESH_DIALOG_FRAGMENT:
+                noteAdapter.clearNotesFromAdapter();
+                totalAmountOfNotesOnServer = 0;
+                updateRecyclerViewNotesListListener();
+                dismissSnackBar();
+                setRequest(null);
+                downloadNotes(noteAdapter.getItemCount());
+                break;
+        }
+    }
+
+    @Override
+    public void onDialogNegativeClicked(String dialogFragmentTag) {
+        Log.d(TAG, "onDialogNegativeClicked()");
+        switch (dialogFragmentTag) {
+            case Constants.TAG_DELETE_NOTES_DIALOG_FRAGMENT:
+                break;
+
+            case Constants.TAG_REFRESH_DIALOG_FRAGMENT:
+                break;
+        }
     }
 
     @Override
@@ -345,6 +373,28 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         }
         outState.putSerializable(Constants.KEY_MULTI_SELECT_NOTES_POSITIONS,
                 (ArrayList<Integer>) noteAdapter.getMultiSelectNotesPositions());
+    }
+
+    private void showDeleteNotesDialogFragment() {
+        Log.d(TAG, "showDeleteNotesDialogFragment()");
+        ActionDialogFragment deleteNotesDialogFragmentFrag = ActionDialogFragment.newInstance(
+                getString(R.string.text_delete_notes),
+                getString(R.string.text_for_dialog_to_delete_notes),
+                getString(R.string.button_delete),
+                getString(R.string.button_cancel)
+        );
+        deleteNotesDialogFragmentFrag.show(getSupportFragmentManager(), Constants.TAG_DELETE_NOTES_DIALOG_FRAGMENT);
+    }
+
+    private void showRefreshDialogFragment() {
+        Log.d(TAG, "showRefreshDialogFragment()");
+        ActionDialogFragment deleteNoteDialogFragmentFrag = ActionDialogFragment.newInstance(
+                getString(R.string.text_refresh_data),
+                getString(R.string.text_for_dialog_to_refresh_data),
+                getString(R.string.button_refresh),
+                getString(R.string.button_cancel)
+        );
+        deleteNoteDialogFragmentFrag.show(getSupportFragmentManager(), Constants.TAG_REFRESH_DIALOG_FRAGMENT);
     }
 
     private void deleteMultiSelectNotes() {

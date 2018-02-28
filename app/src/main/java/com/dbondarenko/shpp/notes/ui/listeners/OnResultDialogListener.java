@@ -10,7 +10,7 @@ package com.dbondarenko.shpp.notes.ui.listeners;
  */
 public interface OnResultDialogListener {
 
-    void onDialogPositiveClicked();
+    void onDialogPositiveClicked(String dialogFragmentTag);
 
-    void onDialogNegativeClicked();
+    void onDialogNegativeClicked(String dialogFragmentTag);
 }

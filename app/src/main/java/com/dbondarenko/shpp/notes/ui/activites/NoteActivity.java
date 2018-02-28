@@ -34,7 +34,7 @@ import com.dbondarenko.shpp.notes.api.response.model.base.BaseResultModel;
 import com.dbondarenko.shpp.notes.models.NoInternetConnectionException;
 import com.dbondarenko.shpp.notes.models.NoteModel;
 import com.dbondarenko.shpp.notes.ui.activites.base.BaseActivity;
-import com.dbondarenko.shpp.notes.ui.fragments.DeleteNoteDialogFragment;
+import com.dbondarenko.shpp.notes.ui.fragments.ActionDialogFragment;
 import com.dbondarenko.shpp.notes.ui.listeners.OnResultDialogListener;
 import com.dbondarenko.shpp.notes.ui.loaders.ApiServiceAsyncTaskLoader;
 import com.dbondarenko.shpp.notes.utils.Util;
@@ -211,15 +211,23 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
     @Override
-    public void onDialogPositiveClicked() {
+    public void onDialogPositiveClicked(String dialogFragmentTag) {
         Log.d(TAG, "onDialogPositiveClicked()");
-        deleteNote();
+        switch (dialogFragmentTag) {
+            case Constants.TAG_DELETE_NOTE_DIALOG_FRAGMENT:
+                deleteNote();
+                break;
+        }
     }
 
     @Override
-    public void onDialogNegativeClicked() {
+    public void onDialogNegativeClicked(String dialogFragmentTag) {
         Log.d(TAG, "onDialogNegativeClicked()");
-        showSoftKeyboard();
+        switch (dialogFragmentTag) {
+            case Constants.TAG_DELETE_NOTE_DIALOG_FRAGMENT:
+                showSoftKeyboard();
+                break;
+        }
     }
 
     @Override
@@ -234,9 +242,12 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     private void showDeleteNoteDialogFragment() {
         Log.d(TAG, "showDeleteNoteDialogFragment()");
-        DeleteNoteDialogFragment deleteNoteDialogFragmentFrag =
-                new DeleteNoteDialogFragment();
-        deleteNoteDialogFragmentFrag.show(getSupportFragmentManager(), Constants.TAG_OF_DELETE_NOTE_DIALOG_FRAGMENT);
+        ActionDialogFragment deleteNoteDialogFragmentFrag = ActionDialogFragment.newInstance(
+                getString(R.string.text_delete_note),
+                getString(R.string.text_for_dialog_to_delete_note),
+                getString(R.string.button_delete),
+                getString(R.string.button_cancel));
+        deleteNoteDialogFragmentFrag.show(getSupportFragmentManager(), Constants.TAG_DELETE_NOTE_DIALOG_FRAGMENT);
     }
 
     private void returnResult(int resultCode) {
