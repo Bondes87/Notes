@@ -6,6 +6,7 @@
     <string name="text_delete_note">Delete note</string>
     <string name="text_delete_notes">Delete notes</string>
     <string name="text_save_note">Save note</string>
+    <string name="text_select_all">Select all</string>
     <string name="text_refresh">Refresh</string>
     <string name="text_refresh_data">Refresh the data</string>
     <string name="text_note_added">Note was added</string>

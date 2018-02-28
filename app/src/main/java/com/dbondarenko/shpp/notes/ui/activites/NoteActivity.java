@@ -82,7 +82,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
         Log.d(TAG, "onCreateOptionsMenu()");
         getMenuInflater().inflate(R.menu.activity_note_menu, menu);
         if (notePosition == -1) {
-            menu.findItem(R.id.itemDeleteNote).setVisible(false);
+            menu.findItem(R.id.itemDeleteNotes).setVisible(false);
         }
         return true;
     }
@@ -102,7 +102,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
                 saveNote(message);
                 return true;
 
-            case R.id.itemDeleteNote:
+            case R.id.itemDeleteNotes:
                 hideSoftKeyboard();
                 showDeleteNoteDialogFragment();
                 return true;

@@ -10,7 +10,7 @@
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction"/>
     <item
-        android:id="@+id/itemDeleteNote"
+        android:id="@+id/itemDeleteNotes"
         android:icon="@mipmap/ic_action_delete_note"
         android:title="@string/text_delete_note"
         app:showAsAction="always"/>

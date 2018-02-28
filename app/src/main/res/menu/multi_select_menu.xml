@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools">
 
     <item
-        android:id="@+id/itemDeleteNote"
+        android:id="@+id/itemSelectAll"
+        android:icon="@mipmap/ic_action_select_all"
+        android:title="@string/text_select_all"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction"/>
+    <item
+        android:id="@+id/itemDeleteNotes"
         android:icon="@mipmap/ic_action_delete_note"
-        android:title="@string/text_delete_note"
+        android:title="@string/text_delete_notes"
         app:showAsAction="always"/>
 </menu>

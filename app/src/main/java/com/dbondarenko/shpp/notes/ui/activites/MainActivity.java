@@ -244,6 +244,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                     if (noteAdapter.getItemCount() < 10 && totalAmountOfNotesOnServer > 0
                             && noteAdapter.getItemCount() != totalAmountOfNotesOnServer) {
                         downloadNotes(noteAdapter.getItemCount());
+                        updateRecyclerViewNotesListListener();
                     }
                     showToast(getApplicationContext(), getString(R.string.text_note_deleted));
                 }
@@ -260,7 +261,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     @Override
     public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
         Log.d(TAG, "onPrepareActionMode()");
-        menu.findItem(R.id.itemDeleteNote).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.findItem(R.id.itemDeleteNotes).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return true;
     }
 
@@ -268,10 +269,23 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
         Log.d(TAG, "onActionItemClicked()");
         switch (item.getItemId()) {
-            case R.id.itemDeleteNote:
+            case R.id.itemDeleteNotes:
                 if (noteAdapter.getMultiSelectedCount() != 0) {
                     showDeleteNotesDialogFragment();
                 }
+                return true;
+
+            case R.id.itemSelectAll:
+                if (noteAdapter.getItemCount() != noteAdapter.getMultiSelectedCount()) {
+                    noteAdapter.clearMultiSelectNotes();
+                    for (int i = 0; i < noteAdapter.getItemCount(); i++) {
+                        noteAdapter.addMultiSelectNote(i);
+                    }
+                } else {
+                    noteAdapter.clearMultiSelectNotes();
+                }
+                multiSelectActionMode.setTitle(getString(R.string.title_action_mode,
+                        noteAdapter.getMultiSelectedCount()));
                 return true;
         }
         return false;
@@ -420,7 +434,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
 
     private void restoreMultiSelectActionMode(List<Integer> multiSelectNotesPositions) {
         Log.d(TAG, "restoreMultiSelectActionMode()");
-        if (multiSelectNotesPositions != null && !multiSelectNotesPositions.isEmpty()) {
+        if (multiSelectNotesPositions != null) {
             multiSelectActionModeActivated();
             noteAdapter.addMultiSelectNotes(multiSelectNotesPositions);
             multiSelectActionMode.setTitle(getString(R.string.title_action_mode,
