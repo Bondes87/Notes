@@ -1,11 +1,11 @@
 package com.dbondarenko.shpp.notes.api;
 
-import com.dbondarenko.shpp.notes.api.response.AddNoteResponse;
-import com.dbondarenko.shpp.notes.api.response.DeleteNoteResponse;
-import com.dbondarenko.shpp.notes.api.response.DeleteNotesResponse;
-import com.dbondarenko.shpp.notes.api.response.GetNotesResponse;
-import com.dbondarenko.shpp.notes.api.response.UpdateNoteResponse;
-import com.dbondarenko.shpp.notes.models.NoteModel;
+import com.dbondarenko.shpp.notes.models.api.response.AddNoteResponse;
+import com.dbondarenko.shpp.notes.models.api.response.DeleteNoteResponse;
+import com.dbondarenko.shpp.notes.models.api.response.DeleteNotesResponse;
+import com.dbondarenko.shpp.notes.models.api.response.GetNotesResponse;
+import com.dbondarenko.shpp.notes.models.api.response.UpdateNoteResponse;
+import com.dbondarenko.shpp.core.models.NoteModel;
 
 import retrofit2.Call;
 import retrofit2.http.Body;

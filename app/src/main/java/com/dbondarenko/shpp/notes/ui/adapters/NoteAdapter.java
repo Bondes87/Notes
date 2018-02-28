@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.dbondarenko.shpp.notes.R;
-import com.dbondarenko.shpp.notes.models.NoteModel;
+import com.dbondarenko.shpp.core.models.NoteModel;
 import com.dbondarenko.shpp.notes.ui.listeners.OnEmptyListListener;
 import com.dbondarenko.shpp.notes.utils.Util;
 

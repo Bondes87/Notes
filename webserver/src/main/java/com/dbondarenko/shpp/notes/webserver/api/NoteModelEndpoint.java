@@ -1,14 +1,14 @@
 package com.dbondarenko.shpp.notes.webserver.api;
 
-import com.dbondarenko.shpp.core.models.AddNoteResult;
-import com.dbondarenko.shpp.core.models.ApiResponse;
-import com.dbondarenko.shpp.core.models.DeleteNoteResult;
-import com.dbondarenko.shpp.core.models.DeleteNotesResult;
-import com.dbondarenko.shpp.core.models.Error;
-import com.dbondarenko.shpp.core.models.GetCountNotes;
-import com.dbondarenko.shpp.core.models.GetNotesResult;
+import com.dbondarenko.shpp.core.models.responses.ApiResponse;
 import com.dbondarenko.shpp.core.models.NoteModel;
-import com.dbondarenko.shpp.core.models.UpdateNoteResult;
+import com.dbondarenko.shpp.core.models.responses.models.AddNoteResultModel;
+import com.dbondarenko.shpp.core.models.responses.models.DeleteNoteResultModel;
+import com.dbondarenko.shpp.core.models.responses.models.DeleteNotesResultModel;
+import com.dbondarenko.shpp.core.models.responses.models.GetCountNotesResultModel;
+import com.dbondarenko.shpp.core.models.responses.models.GetNotesResultModel;
+import com.dbondarenko.shpp.core.models.responses.models.UpdateNoteResultModel;
+import com.dbondarenko.shpp.core.models.responses.models.base.BaseErrorModel;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
@@ -48,23 +48,23 @@ public class NoteModelEndpoint {
     public ApiResponse addNote(NoteModel note) {
         logger.info("Calling addNote method.");
         if (note == null) {
-            return new ApiResponse(new Error("Note is null."));
+            return new ApiResponse(new BaseErrorModel("Note is null."));
         }
         if (note.getMessage() == null) {
-            return new ApiResponse(new Error("Note message is empty."));
+            return new ApiResponse(new BaseErrorModel("Note message is empty."));
         }
         if (notesList.contains(note)) {
-            return new ApiResponse(new Error("This note already exists."));
+            return new ApiResponse(new BaseErrorModel("This note already exists."));
         }
         for (int i = 0; i < notesList.size(); i++) {
             if (notesList.get(i).getDatetime() < note.getDatetime()) {
                 logger.info("if true: " + i);
                 notesList.add(i, note);
-                return new ApiResponse(new AddNoteResult(true));
+                return new ApiResponse(new AddNoteResultModel(true));
             }
         }
         notesList.add(note);
-        return new ApiResponse(new AddNoteResult(true));
+        return new ApiResponse(new AddNoteResultModel(true));
     }
 
     @ApiMethod(name = "getAllNotes",
@@ -72,7 +72,7 @@ public class NoteModelEndpoint {
             path = "getAllNotes")
     public ApiResponse getAllNotes() {
         logger.info("Calling getAllNotes method.");
-        return new ApiResponse(new GetNotesResult(notesList, notesList.size()));
+        return new ApiResponse(new GetNotesResultModel(notesList, notesList.size()));
     }
 
     @ApiMethod(name = "getNotes",
@@ -81,23 +81,24 @@ public class NoteModelEndpoint {
     public ApiResponse getNotes(@Named("startPosition") int startPosition, @Named("amount") int amount) {
         logger.info("Calling getNotes method.");
         if (startPosition < 0 || amount < 0) {
-            return new ApiResponse(new Error("One of the specified parameters is less than 0."));
+            return new ApiResponse(new BaseErrorModel("One of the specified parameters is less than 0."));
         }
         if (startPosition == notesList.size()) {
-            return new ApiResponse(new GetNotesResult(new ArrayList<NoteModel>(), notesList.size()));
+            return new ApiResponse(new GetNotesResultModel(new ArrayList<NoteModel>(), notesList.size()));
         }
         if (startPosition > notesList.size()) {
-            return new ApiResponse(new Error("Starting position is longer for the length of the list."));
+            return new ApiResponse(new BaseErrorModel("Starting position is longer for the length of the list."));
         }
         if (amount == 0) {
-            return new ApiResponse(new Error("The amount must not be zero."));
+            return new ApiResponse(new BaseErrorModel("The amount must not be zero."));
         }
         int endPosition = startPosition + amount;
         if (endPosition > notesList.size()) {
-            return new ApiResponse(new GetNotesResult(notesList.subList(startPosition, notesList.size()),
+            return new ApiResponse(new GetNotesResultModel(notesList.subList(startPosition, notesList.size()),
                     notesList.size()));
         }
-        return new ApiResponse(new GetNotesResult(notesList.subList(startPosition, endPosition), notesList.size()));
+        return new ApiResponse(new GetNotesResultModel(notesList.subList(startPosition, endPosition), notesList.size
+                ()));
     }
 
     @ApiMethod(name = "getCountNotes",
@@ -105,7 +106,7 @@ public class NoteModelEndpoint {
             path = "getCountNotes")
     public ApiResponse getCountNotes() {
         logger.info("Calling getCountNotes method.");
-        return new ApiResponse(new GetCountNotes(notesList.size()));
+        return new ApiResponse(new GetCountNotesResultModel(notesList.size()));
     }
 
     @ApiMethod(name = "updateNote",
@@ -114,17 +115,17 @@ public class NoteModelEndpoint {
     public ApiResponse updateNote(NoteModel note) {
         logger.info("Calling updateNote method.");
         if (note == null) {
-            return new ApiResponse(new Error("Note is null."));
+            return new ApiResponse(new BaseErrorModel("Note is null."));
         }
         if (note.getMessage() == null) {
-            return new ApiResponse(new Error("Note message is empty."));
+            return new ApiResponse(new BaseErrorModel("Note message is empty."));
         }
         int indexOfNoteFromList = getIndexOfNoteByDatetime(note.getDatetime());
         if (indexOfNoteFromList != -1) {
             notesList.get(indexOfNoteFromList).setMessage(note.getMessage());
-            return new ApiResponse(new UpdateNoteResult(true));
+            return new ApiResponse(new UpdateNoteResultModel(true));
         }
-        return new ApiResponse(new Error("Note does not exist."));
+        return new ApiResponse(new BaseErrorModel("Note does not exist."));
     }
 
     @ApiMethod(name = "deleteNote",
@@ -133,14 +134,14 @@ public class NoteModelEndpoint {
     public ApiResponse deleteNote(@Named("datetime") long datetime) {
         logger.info("Calling deleteNote method ");
         if (notesList.size() == 0) {
-            return new ApiResponse(new Error("List of notes is empty."));
+            return new ApiResponse(new BaseErrorModel("List of notes is empty."));
         }
         int indexOfNoteFromList = getIndexOfNoteByDatetime(datetime);
         if (indexOfNoteFromList != -1) {
             notesList.remove(indexOfNoteFromList);
-            return new ApiResponse(new DeleteNoteResult(true));
+            return new ApiResponse(new DeleteNoteResultModel(true));
         }
-        return new ApiResponse(new Error("Note does not exist."));
+        return new ApiResponse(new BaseErrorModel("Note does not exist."));
     }
 
     @ApiMethod(name = "deleteNotes",
@@ -149,10 +150,10 @@ public class NoteModelEndpoint {
     public ApiResponse deleteNotes(@Named("datetimeArray") long[] datetimeArray) {
         logger.info("Calling deleteNotes method ");
         if (notesList.size() == 0) {
-            return new ApiResponse(new Error("List of notes is empty."));
+            return new ApiResponse(new BaseErrorModel("List of notes is empty."));
         }
         if (datetimeArray.length == 0) {
-            return new ApiResponse(new Error("Notes for removal are not specified."));
+            return new ApiResponse(new BaseErrorModel("Notes for removal are not specified."));
         }
         int oldNotesListSize = notesList.size();
         for (long datetime : datetimeArray) {
@@ -161,10 +162,10 @@ public class NoteModelEndpoint {
                 notesList.remove(indexOfNoteFromList);
             }
         }
-        if (oldNotesListSize==notesList.size()+datetimeArray.length){
-            return new ApiResponse(new DeleteNotesResult(true));
+        if (oldNotesListSize == notesList.size() + datetimeArray.length) {
+            return new ApiResponse(new DeleteNotesResultModel(true));
         }
-        return new ApiResponse(new Error("Deleting notes occurred error."));
+        return new ApiResponse(new BaseErrorModel("Deleting notes occurred error."));
     }
 
     @ApiMethod(name = "createNotes",

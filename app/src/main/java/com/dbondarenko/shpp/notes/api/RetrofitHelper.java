@@ -1,7 +1,6 @@
 package com.dbondarenko.shpp.notes.api;
 
-import android.content.Context;
-
+import com.dbondarenko.shpp.notes.Constants;
 import com.google.gson.GsonBuilder;
 
 import retrofit2.Retrofit;
@@ -16,22 +15,18 @@ import retrofit2.converter.gson.GsonConverterFactory;
  *         E-mail: bondes87@gmail.com
  */
 public class RetrofitHelper {
+
     private Retrofit retrofit;
 
     private RetrofitHelper() {
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
-                .baseUrl("https://notes-195914.appspot.com/")
+                .baseUrl(Constants.BASE_URL)
                 .addConverterFactory(GsonConverterFactory
                         .create(new GsonBuilder()
                                 .excludeFieldsWithoutExposeAnnotation()
                                 .serializeNulls()
                                 .create()));
-
         retrofit = retrofitBuilder.build();
-    }
-
-    public RetrofitHelper(Retrofit retrofit) {
-        this.retrofit = retrofit;
     }
 
     public static RetrofitHelper getInstance() {

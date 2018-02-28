@@ -1,23 +1,34 @@
 package com.dbondarenko.shpp.core.models;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+import java.io.Serializable;
+
 /**
  * File: NoteModel.java
  *
  * @author Dmytro Bondarenko
- *         Date: 04.02.2018
- *         Time: 12:12
+ *         Date: 19.02.2018
+ *         Time: 18:41
  *         E-mail: bondes87@gmail.com
  */
-public class NoteModel {
+public class NoteModel implements Serializable {
+
+    @SerializedName("datetime")
+    @Expose
     private long datetime;
+
+    @SerializedName("message")
+    @Expose
     private String message;
+
+    public NoteModel() {
+    }
 
     public NoteModel(long datetime, String message) {
         this.datetime = datetime;
         this.message = message;
-    }
-
-    public NoteModel() {
     }
 
     @Override

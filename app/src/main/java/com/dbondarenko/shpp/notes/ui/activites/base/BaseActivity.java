@@ -10,9 +10,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.dbondarenko.shpp.notes.api.ApiName;
-import com.dbondarenko.shpp.notes.api.request.base.BaseRequest;
-import com.dbondarenko.shpp.notes.api.response.model.base.BaseErrorModel;
-import com.dbondarenko.shpp.notes.api.response.model.base.BaseResultModel;
+import com.dbondarenko.shpp.notes.models.api.request.base.BaseRequest;
+import com.dbondarenko.shpp.core.models.responses.models.base.BaseErrorModel;
+import com.dbondarenko.shpp.core.models.responses.models.base.BaseResultModel;
 
 /**
  * File: BaseActivity.java

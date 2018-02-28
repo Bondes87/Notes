@@ -44,4 +44,7 @@ public class Constants {
     // before loading more.
     public static final int MAXIMUM_COUNT_OF_NOTES_TO_LOAD = 20;
     public static final int VISIBLE_THRESHOLD = 10;
+
+    // Base url for retrofit
+    public static final String BASE_URL = "https://notes-195914.appspot.com/";
 }
