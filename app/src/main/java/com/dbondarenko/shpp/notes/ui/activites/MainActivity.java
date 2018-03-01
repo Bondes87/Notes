@@ -243,13 +243,18 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 if (deleteNotesResultModel.isDeleted()) {
                     noteAdapter.deleteMultiSelectNotes();
                     totalAmountOfNotesOnServer = totalAmountOfNotesOnServer - noteAdapter.getMultiSelectedCount();
+                    if (noteAdapter.getMultiSelectedCount() == 1) {
+                        showToast(getApplicationContext(), getString(R.string.text_note_deleted));
+                    } else {
+                        showToast(getApplicationContext(), getString(R.string.text_notes_deleted));
+                    }
                     multiSelectActionMode.finish();
                     if (noteAdapter.getItemCount() < 10 && totalAmountOfNotesOnServer > 0
                             && noteAdapter.getItemCount() != totalAmountOfNotesOnServer) {
                         downloadNotes(noteAdapter.getItemCount());
                         updateRecyclerViewNotesListListener();
                     }
-                    showToast(getApplicationContext(), getString(R.string.text_note_deleted));
+
                 }
         }
     }
