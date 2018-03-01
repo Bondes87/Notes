@@ -1,7 +1,7 @@
 package com.dbondarenko.shpp.notes.webserver.api;
 
-import com.dbondarenko.shpp.core.models.responses.ApiResponse;
 import com.dbondarenko.shpp.core.models.NoteModel;
+import com.dbondarenko.shpp.core.models.responses.ApiResponse;
 import com.dbondarenko.shpp.core.models.responses.models.AddNoteResultModel;
 import com.dbondarenko.shpp.core.models.responses.models.DeleteNoteResultModel;
 import com.dbondarenko.shpp.core.models.responses.models.DeleteNotesResultModel;
@@ -172,10 +172,12 @@ public class NoteModelEndpoint {
             httpMethod = ApiMethod.HttpMethod.POST,
             path = "createNotes")
     public void createNotes(@Named("count") int count) {
-        logger.info("Calling deleteNote method ");
+        logger.info("Calling createNotes method ");
         long datetime = Calendar.getInstance().getTimeInMillis();
-        for (int i = count; i > 0; i--) {
-            notesList.add(0, new NoteModel(datetime + i * 1000, String.valueOf(i)));
+        if (count > 0) {
+            for (int i = count; i > 0; i--) {
+                notesList.add(0, new NoteModel(datetime + i * 1000, String.valueOf(i)));
+            }
         }
     }
 
