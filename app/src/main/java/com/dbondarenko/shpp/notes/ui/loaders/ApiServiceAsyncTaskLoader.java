@@ -108,7 +108,6 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
             apiLoaderDeleteNotesResponse.setException(new NoInternetConnectionException(
                     getContext().getApplicationContext().getString(R.string.error_no_connection)));
         }
-
         return apiLoaderDeleteNotesResponse;
     }
 
@@ -130,7 +129,6 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
             apiLoaderDeleteNoteResponse.setException(new NoInternetConnectionException(
                     getContext().getApplicationContext().getString(R.string.error_no_connection)));
         }
-
         return apiLoaderDeleteNoteResponse;
     }
 

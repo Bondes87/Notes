@@ -54,5 +54,4 @@ public class Util {
         }
         return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
-
 }
