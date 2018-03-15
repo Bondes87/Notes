@@ -1,6 +1,6 @@
 package com.dbondarenko.shpp.notes.models.api.request;
 
-import com.dbondarenko.shpp.notes.api.ApiName;
+import com.dbondarenko.shpp.notes.api.ApiNameAnnotation;
 import com.dbondarenko.shpp.notes.models.api.request.base.BaseRequest;
 import com.dbondarenko.shpp.notes.models.api.request.models.GetNotesRequestModel;
 
@@ -14,6 +14,6 @@ import com.dbondarenko.shpp.notes.models.api.request.models.GetNotesRequestModel
  */
 public class GetNotesRequest extends BaseRequest<GetNotesRequestModel> {
     public GetNotesRequest(GetNotesRequestModel requestModel) {
-        super(ApiName.GET_GET_NOTES, requestModel);
+        super(new ApiNameAnnotation(ApiNameAnnotation.GET_GET_NOTES), requestModel);
     }
 }

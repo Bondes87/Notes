@@ -29,7 +29,7 @@ import com.dbondarenko.shpp.core.models.responses.models.base.BaseErrorModel;
 import com.dbondarenko.shpp.core.models.responses.models.base.BaseResultModel;
 import com.dbondarenko.shpp.notes.Constants;
 import com.dbondarenko.shpp.notes.R;
-import com.dbondarenko.shpp.notes.api.ApiName;
+import com.dbondarenko.shpp.notes.api.ApiNameAnnotation;
 import com.dbondarenko.shpp.notes.models.api.ApiLoaderResponse;
 import com.dbondarenko.shpp.notes.models.api.request.DeleteNotesRequest;
 import com.dbondarenko.shpp.notes.models.api.request.GetNotesRequest;
@@ -162,7 +162,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         switch (id) {
             case Constants.LOADER_ID_API_SERVICE:
                 if (getRequest() != null) {
-                    if (getRequest().getApiName() == ApiName.GET_GET_NOTES && noteAdapter.getItemCount() > 0) {
+                    if (getRequest().getApiNameAnnotation().getApiName() == ApiNameAnnotation.GET_GET_NOTES && noteAdapter.getItemCount() > 0) {
                         smoothProgressBarNotesLoading.setVisibility(View.VISIBLE);
                     } else {
                         progressBarActionsWithNote.setVisibility(View.VISIBLE);
@@ -186,7 +186,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
             if (data.getResponseModel() != null) {
                 setRequest(null);
                 if (data.getResponseModel().getResult() != null) {
-                    handleSuccessResult(data.getApiName(), data.getResponseModel().getResult());
+                    handleSuccessResult(data.getApiNameAnnotation(), data.getResponseModel().getResult());
                 } else {
                     if (data.getResponseModel().getError() != null) {
                         handleFailureResult(data.getResponseModel().getError());
@@ -223,11 +223,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     }
 
     @Override
-    public void handleSuccessResult(ApiName apiName, BaseResultModel baseResultModel) {
+    public void handleSuccessResult(ApiNameAnnotation apiNameAnnotation, BaseResultModel baseResultModel) {
         Log.d(TAG, "handleSuccessResult()");
-        switch (apiName) {
+        switch (apiNameAnnotation.getApiName()) {
 
-            case GET_GET_NOTES:
+            case ApiNameAnnotation.GET_GET_NOTES:
                 GetNotesResultModel getNotesResultModel = (GetNotesResultModel) baseResultModel;
                 if (getNotesResultModel.getNotes() != null) {
                     noteAdapter.addNotes(getNotesResultModel.getNotes());
@@ -238,7 +238,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 }
                 break;
 
-            case DELETE_DELETE_NOTES:
+            case ApiNameAnnotation.DELETE_DELETE_NOTES:
                 DeleteNotesResultModel deleteNotesResultModel = (DeleteNotesResultModel) baseResultModel;
                 if (deleteNotesResultModel.isDeleted()) {
                     noteAdapter.deleteMultiSelectNotes();

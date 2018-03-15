@@ -1,6 +1,6 @@
 package com.dbondarenko.shpp.notes.models.api.request;
 
-import com.dbondarenko.shpp.notes.api.ApiName;
+import com.dbondarenko.shpp.notes.api.ApiNameAnnotation;
 import com.dbondarenko.shpp.notes.models.api.request.base.BaseRequest;
 import com.dbondarenko.shpp.notes.models.api.request.models.AddNoteRequestModel;
 
@@ -14,6 +14,6 @@ import com.dbondarenko.shpp.notes.models.api.request.models.AddNoteRequestModel;
  */
 public class AddNoteRequest extends BaseRequest<AddNoteRequestModel> {
     public AddNoteRequest(AddNoteRequestModel requestModel) {
-        super(ApiName.POST_ADD_NOTE, requestModel);
+        super(new ApiNameAnnotation(ApiNameAnnotation.POST_ADD_NOTE), requestModel);
     }
 }

@@ -18,7 +18,7 @@ import android.widget.ProgressBar;
 import com.dbondarenko.shpp.notes.Constants;
 import com.dbondarenko.shpp.notes.R;
 import com.dbondarenko.shpp.notes.models.api.ApiLoaderResponse;
-import com.dbondarenko.shpp.notes.api.ApiName;
+import com.dbondarenko.shpp.notes.api.ApiNameAnnotation;
 import com.dbondarenko.shpp.notes.models.api.request.AddNoteRequest;
 import com.dbondarenko.shpp.notes.models.api.request.DeleteNoteRequest;
 import com.dbondarenko.shpp.notes.models.api.request.UpdateNoteRequest;
@@ -141,7 +141,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
             if (data.getResponseModel() != null) {
                 setRequest(null);
                 if (data.getResponseModel().getResult() != null) {
-                    handleSuccessResult(data.getApiName(), data.getResponseModel().getResult());
+                    handleSuccessResult(data.getApiNameAnnotation(), data.getResponseModel().getResult());
                 } else {
                     if (data.getResponseModel().getError() != null) {
                         editTextMessage.setVisibility(View.VISIBLE);
@@ -171,11 +171,11 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
     @Override
-    public void handleSuccessResult(ApiName apiName, BaseResultModel baseResultModel) {
+    public void handleSuccessResult(ApiNameAnnotation apiNameAnnotation, BaseResultModel baseResultModel) {
         Log.d(TAG, "handleSuccessResult()");
-        switch (apiName) {
+        switch (apiNameAnnotation.getApiName()) {
 
-            case POST_ADD_NOTE:
+            case ApiNameAnnotation.POST_ADD_NOTE:
                 AddNoteResultModel addNoteResultModel = (AddNoteResultModel) baseResultModel;
                 if (addNoteResultModel.isAdded()) {
                     showToast(getApplicationContext(), getString(R.string.text_note_added));
@@ -183,7 +183,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
                 }
                 break;
 
-            case PUT_UPDATE_NOTE:
+            case ApiNameAnnotation.PUT_UPDATE_NOTE:
                 UpdateNoteResultModel updateNoteResultModel = (UpdateNoteResultModel) baseResultModel;
                 if (updateNoteResultModel.isUpdated()) {
                     showToast(getApplicationContext(), getString(R.string.text_note_updated));
@@ -191,7 +191,7 @@ public class NoteActivity extends BaseActivity implements LoaderManager.LoaderCa
                 }
                 break;
 
-            case DELETE_DELETE_NOTE:
+            case ApiNameAnnotation.DELETE_DELETE_NOTE:
                 DeleteNoteResultModel deleteNoteResultModel = (DeleteNoteResultModel) baseResultModel;
                 if (deleteNoteResultModel.isDeleted()) {
                     showToast(getApplicationContext(), getString(R.string.text_note_deleted));

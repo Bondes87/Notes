@@ -1,6 +1,6 @@
 package com.dbondarenko.shpp.notes.models.api.request;
 
-import com.dbondarenko.shpp.notes.api.ApiName;
+import com.dbondarenko.shpp.notes.api.ApiNameAnnotation;
 import com.dbondarenko.shpp.notes.models.api.request.base.BaseRequest;
 import com.dbondarenko.shpp.notes.models.api.request.models.DeleteNotesRequestModel;
 
@@ -14,6 +14,6 @@ import com.dbondarenko.shpp.notes.models.api.request.models.DeleteNotesRequestMo
  */
 public class DeleteNotesRequest extends BaseRequest<DeleteNotesRequestModel> {
     public DeleteNotesRequest(DeleteNotesRequestModel requestModel) {
-        super(ApiName.DELETE_DELETE_NOTES, requestModel);
+        super(new ApiNameAnnotation(ApiNameAnnotation.DELETE_DELETE_NOTES), requestModel);
     }
 }
