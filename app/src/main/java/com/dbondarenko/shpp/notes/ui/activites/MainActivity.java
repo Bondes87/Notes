@@ -29,7 +29,7 @@ import com.dbondarenko.shpp.core.models.responses.models.base.BaseErrorModel;
 import com.dbondarenko.shpp.core.models.responses.models.base.BaseResultModel;
 import com.dbondarenko.shpp.notes.Constants;
 import com.dbondarenko.shpp.notes.R;
-import com.dbondarenko.shpp.notes.api.ApiNameAnnotation;
+import com.dbondarenko.shpp.notes.api.ApiName;
 import com.dbondarenko.shpp.notes.models.api.ApiLoaderResponse;
 import com.dbondarenko.shpp.notes.models.api.request.DeleteNotesRequest;
 import com.dbondarenko.shpp.notes.models.api.request.GetNotesRequest;
@@ -48,6 +48,7 @@ import com.dbondarenko.shpp.notes.ui.widgets.MarginDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 
@@ -162,7 +163,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         switch (id) {
             case Constants.LOADER_ID_API_SERVICE:
                 if (getRequest() != null) {
-                    if (getRequest().getApiNameAnnotation().getApiName() == ApiNameAnnotation.GET_GET_NOTES && noteAdapter.getItemCount() > 0) {
+                    if (Objects.equals(getRequest().getApiName(), ApiName.GET_GET_NOTES) && noteAdapter.getItemCount() > 0) {
                         smoothProgressBarNotesLoading.setVisibility(View.VISIBLE);
                     } else {
                         progressBarActionsWithNote.setVisibility(View.VISIBLE);
@@ -186,7 +187,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
             if (data.getResponseModel() != null) {
                 setRequest(null);
                 if (data.getResponseModel().getResult() != null) {
-                    handleSuccessResult(data.getApiNameAnnotation(), data.getResponseModel().getResult());
+                    handleSuccessResult(data.getApiName(), data.getResponseModel().getResult());
                 } else {
                     if (data.getResponseModel().getError() != null) {
                         handleFailureResult(data.getResponseModel().getError());
@@ -223,11 +224,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     }
 
     @Override
-    public void handleSuccessResult(ApiNameAnnotation apiNameAnnotation, BaseResultModel baseResultModel) {
+    public void handleSuccessResult(@ApiName String apiName, BaseResultModel baseResultModel) {
         Log.d(TAG, "handleSuccessResult()");
-        switch (apiNameAnnotation.getApiName()) {
+        switch (apiName) {
 
-            case ApiNameAnnotation.GET_GET_NOTES:
+            case ApiName.GET_GET_NOTES:
                 GetNotesResultModel getNotesResultModel = (GetNotesResultModel) baseResultModel;
                 if (getNotesResultModel.getNotes() != null) {
                     noteAdapter.addNotes(getNotesResultModel.getNotes());
@@ -238,7 +239,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 }
                 break;
 
-            case ApiNameAnnotation.DELETE_DELETE_NOTES:
+            case ApiName.DELETE_DELETE_NOTES:
                 DeleteNotesResultModel deleteNotesResultModel = (DeleteNotesResultModel) baseResultModel;
                 if (deleteNotesResultModel.isDeleted()) {
                     noteAdapter.deleteMultiSelectNotes();

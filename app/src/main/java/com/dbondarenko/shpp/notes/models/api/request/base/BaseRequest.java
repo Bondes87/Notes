@@ -1,9 +1,9 @@
 package com.dbondarenko.shpp.notes.models.api.request.base;
 
 import com.dbondarenko.shpp.notes.api.ApiName;
-import com.dbondarenko.shpp.notes.api.ApiNameAnnotation;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * File: BaseRequest.java
@@ -13,12 +13,13 @@ import java.io.Serializable;
  *         Time: 15:20
  *         E-mail: bondes87@gmail.com
  */
-public abstract class BaseRequest<T> implements Serializable{
-    private ApiNameAnnotation apiNameAnnotation;
+public abstract class BaseRequest<T> implements Serializable {
+    @ApiName
+    private String apiName;
     private T requestModel;
 
-    public BaseRequest(ApiNameAnnotation apiNameAnnotation, T requestModel) {
-        this.apiNameAnnotation = apiNameAnnotation;
+    public BaseRequest(@ApiName String apiName, T requestModel) {
+        this.apiName = apiName;
         this.requestModel = requestModel;
     }
 
@@ -27,12 +28,12 @@ public abstract class BaseRequest<T> implements Serializable{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BaseRequest<?> that = (BaseRequest<?>) o;
-        return apiNameAnnotation == that.apiNameAnnotation && requestModel.equals(that.requestModel);
+        return Objects.equals(apiName, that.apiName) && requestModel.equals(that.requestModel);
     }
 
     @Override
     public int hashCode() {
-        int result = apiNameAnnotation.hashCode();
+        int result = apiName.hashCode();
         result = 31 * result + requestModel.hashCode();
         return result;
     }
@@ -40,17 +41,18 @@ public abstract class BaseRequest<T> implements Serializable{
     @Override
     public String toString() {
         return "BaseRequest{" +
-                "apiNameAnnotation=" + apiNameAnnotation +
+                "apiName=" + apiName +
                 ", requestModel=" + requestModel +
                 '}';
     }
 
-    public ApiNameAnnotation getApiNameAnnotation() {
-        return apiNameAnnotation;
+    @ApiName
+    public String getApiName() {
+        return apiName;
     }
 
-    public void setApiNameAnnotation(ApiNameAnnotation apiNameAnnotation) {
-        this.apiNameAnnotation = apiNameAnnotation;
+    public void setApiName(@ApiName String apiName) {
+        this.apiName = apiName;
     }
 
     public T getRequestModel() {

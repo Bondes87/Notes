@@ -18,9 +18,9 @@ import java.lang.annotation.RetentionPolicy;
         ApiName.PUT_UPDATE_NOTE})
 @Retention(RetentionPolicy.SOURCE)
 public @interface ApiName {
-    public static final String POST_ADD_NOTE = "POST_ADD_NOTE";
-    public static final String DELETE_DELETE_NOTE = "DELETE_DELETE_NOTE";
-    public static final String DELETE_DELETE_NOTES = "DELETE_DELETE_NOTES";
-    public static final String GET_GET_NOTES = "GET_GET_NOTES";
-    public static final String PUT_UPDATE_NOTE = "PUT_UPDATE_NOTE";
+    String POST_ADD_NOTE = "POST_ADD_NOTE";
+    String DELETE_DELETE_NOTE = "DELETE_DELETE_NOTE";
+    String DELETE_DELETE_NOTES = "DELETE_DELETE_NOTES";
+    String GET_GET_NOTES = "GET_GET_NOTES";
+    String PUT_UPDATE_NOTE = "PUT_UPDATE_NOTE";
 }

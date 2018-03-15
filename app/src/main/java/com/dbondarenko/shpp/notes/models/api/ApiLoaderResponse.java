@@ -1,6 +1,6 @@
 package com.dbondarenko.shpp.notes.models.api;
 
-import com.dbondarenko.shpp.notes.api.ApiNameAnnotation;
+import com.dbondarenko.shpp.notes.api.ApiName;
 import com.dbondarenko.shpp.notes.models.api.response.base.BaseResponse;
 
 import java.io.Serializable;
@@ -16,16 +16,18 @@ import retrofit2.Response;
  *         E-mail: bondes87@gmail.com
  */
 public class ApiLoaderResponse<T extends BaseResponse> implements Serializable {
-    private ApiNameAnnotation apiNameAnnotation;
+    @ApiName
+    private String apiName;
     private Response<T> baseResponseModelResponse;
     private Exception exception;
 
-    public ApiNameAnnotation getApiNameAnnotation() {
-        return apiNameAnnotation;
+    @ApiName
+    public String getApiName() {
+        return apiName;
     }
 
-    public void setApiNameAnnotation(ApiNameAnnotation apiNameAnnotation) {
-        this.apiNameAnnotation = apiNameAnnotation;
+    public void setApiName(@ApiName String apiName) {
+        this.apiName = apiName;
     }
 
     public T getResponseModel() {

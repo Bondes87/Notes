@@ -103,7 +103,7 @@
     }
     // This is called initially
     function init() {
-      var apiNameAnnotation = 'myApi';
+      var apiName = 'myApi';
       var apiVersion = 'v1';
       var apiRoot = 'https://' + window.location.host + '/_ah/api';
       if (window.location.hostname == 'localhost'
@@ -115,7 +115,7 @@
       var callback = function() {
         enableClick();
       }
-      gapi.client.load(apiNameAnnotation, apiVersion, callback, apiRoot);
+      gapi.client.load(apiName, apiVersion, callback, apiRoot);
     }
 
 </script>

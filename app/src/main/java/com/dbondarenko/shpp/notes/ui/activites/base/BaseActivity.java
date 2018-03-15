@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import com.dbondarenko.shpp.core.models.responses.models.base.BaseErrorModel;
 import com.dbondarenko.shpp.core.models.responses.models.base.BaseResultModel;
-import com.dbondarenko.shpp.notes.api.ApiNameAnnotation;
+import com.dbondarenko.shpp.notes.api.ApiName;
 import com.dbondarenko.shpp.notes.models.api.request.base.BaseRequest;
 
 /**
@@ -35,7 +35,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     public abstract int getContentViewResourceId();
 
-    public abstract void handleSuccessResult(ApiNameAnnotation apiNameAnnotation, BaseResultModel baseResultModel);
+    public abstract void handleSuccessResult(@ApiName String apiName, BaseResultModel baseResultModel);
 
     public abstract void handleFailureResult(BaseErrorModel baseErrorModel);
 

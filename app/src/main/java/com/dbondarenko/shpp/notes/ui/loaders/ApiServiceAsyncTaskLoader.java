@@ -7,7 +7,7 @@ import android.util.Log;
 
 import com.dbondarenko.shpp.core.models.NoteModel;
 import com.dbondarenko.shpp.notes.R;
-import com.dbondarenko.shpp.notes.api.ApiNameAnnotation;
+import com.dbondarenko.shpp.notes.api.ApiName;
 import com.dbondarenko.shpp.notes.api.ApiService;
 import com.dbondarenko.shpp.notes.api.RetrofitHelper;
 import com.dbondarenko.shpp.notes.models.api.ApiLoaderResponse;
@@ -60,22 +60,22 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
         Log.d(TAG, "loadInBackground()");
         Retrofit retrofit = RetrofitHelper.getInstance().getRetrofit();
         ApiService apiService = retrofit.create(ApiService.class);
-        if (baseRequest != null && baseRequest.getApiNameAnnotation() != null && apiService != null) {
-            switch (baseRequest.getApiNameAnnotation().getApiName()) {
+        if (baseRequest != null && baseRequest.getApiName() != null && apiService != null) {
+            switch (baseRequest.getApiName()) {
 
-                case ApiNameAnnotation.GET_GET_NOTES:
+                case ApiName.GET_GET_NOTES:
                     return getApiLoaderGetNotesResponse(apiService);
 
-                case ApiNameAnnotation.POST_ADD_NOTE:
+                case ApiName.POST_ADD_NOTE:
                     return getApiLoaderAddNoteResponse(apiService);
 
-                case ApiNameAnnotation.PUT_UPDATE_NOTE:
+                case ApiName.PUT_UPDATE_NOTE:
                     return gerApiLoaderUpdateNoteResponse(apiService);
 
-                case ApiNameAnnotation.DELETE_DELETE_NOTE:
+                case ApiName.DELETE_DELETE_NOTE:
                     return gerApiLoaderDeleteNoteResponse(apiService);
 
-                case ApiNameAnnotation.DELETE_DELETE_NOTES:
+                case ApiName.DELETE_DELETE_NOTES:
                     return gerApiLoaderDeleteNotesResponse(apiService);
 
                 default:
@@ -95,7 +95,7 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
     private ApiLoaderResponse gerApiLoaderDeleteNotesResponse(ApiService apiService) {
         Log.d(TAG, "gerApiLoaderDeleteNoteResponse() " + apiService);
         ApiLoaderResponse<DeleteNotesResponse> apiLoaderDeleteNotesResponse = new ApiLoaderResponse<>();
-        apiLoaderDeleteNotesResponse.setApiNameAnnotation(baseRequest.getApiNameAnnotation());
+        apiLoaderDeleteNotesResponse.setApiName(baseRequest.getApiName());
         DeleteNotesRequest deleteNotesRequest = (DeleteNotesRequest) baseRequest;
         long[] datetimeArray = deleteNotesRequest.getRequestModel().getDatetimeArray();
         if (Util.isInternetConnectionAvailable(getContext().getApplicationContext())) {
@@ -116,7 +116,7 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
     private ApiLoaderResponse gerApiLoaderDeleteNoteResponse(ApiService apiService) {
         Log.d(TAG, "gerApiLoaderDeleteNoteResponse() " + apiService);
         ApiLoaderResponse<DeleteNoteResponse> apiLoaderDeleteNoteResponse = new ApiLoaderResponse<>();
-        apiLoaderDeleteNoteResponse.setApiNameAnnotation(baseRequest.getApiNameAnnotation());
+        apiLoaderDeleteNoteResponse.setApiName(baseRequest.getApiName());
         DeleteNoteRequest deleteNoteRequest = (DeleteNoteRequest) baseRequest;
         long datetime = deleteNoteRequest.getRequestModel().getDatetime();
         if (Util.isInternetConnectionAvailable(getContext().getApplicationContext())) {
@@ -136,7 +136,7 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
     private ApiLoaderResponse gerApiLoaderUpdateNoteResponse(ApiService apiService) {
         Log.d(TAG, "gerApiLoaderUpdateNoteResponse() " + apiService);
         ApiLoaderResponse<UpdateNoteResponse> apiLoaderUpdateNoteResponse = new ApiLoaderResponse<>();
-        apiLoaderUpdateNoteResponse.setApiNameAnnotation(baseRequest.getApiNameAnnotation());
+        apiLoaderUpdateNoteResponse.setApiName(baseRequest.getApiName());
         UpdateNoteRequest updateNoteRequest = (UpdateNoteRequest) baseRequest;
         NoteModel note = updateNoteRequest.getRequestModel().getNote();
         if (Util.isInternetConnectionAvailable(getContext().getApplicationContext())) {
@@ -156,7 +156,7 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
     private ApiLoaderResponse getApiLoaderAddNoteResponse(ApiService apiService) {
         Log.d(TAG, "getApiLoaderAddNoteResponse() " + apiService);
         ApiLoaderResponse<AddNoteResponse> apiLoaderAddNoteResponse = new ApiLoaderResponse<>();
-        apiLoaderAddNoteResponse.setApiNameAnnotation(baseRequest.getApiNameAnnotation());
+        apiLoaderAddNoteResponse.setApiName(baseRequest.getApiName());
         AddNoteRequest addNoteRequest = (AddNoteRequest) baseRequest;
         NoteModel note = addNoteRequest.getRequestModel().getNote();
         if (Util.isInternetConnectionAvailable(getContext().getApplicationContext())) {
@@ -177,7 +177,7 @@ public class ApiServiceAsyncTaskLoader extends AsyncTaskLoader<ApiLoaderResponse
     private ApiLoaderResponse getApiLoaderGetNotesResponse(ApiService apiService) {
         Log.d(TAG, "getApiLoaderGetNotesResponse() " + apiService);
         ApiLoaderResponse<GetNotesResponse> apiLoaderGetNotesResponse = new ApiLoaderResponse<>();
-        apiLoaderGetNotesResponse.setApiNameAnnotation(baseRequest.getApiNameAnnotation());
+        apiLoaderGetNotesResponse.setApiName(baseRequest.getApiName());
         GetNotesRequest getNotesRequest = (GetNotesRequest) baseRequest;
         int startPosition = getNotesRequest.getRequestModel().getStartPosition();
         int amount = getNotesRequest.getRequestModel().getAmount();
