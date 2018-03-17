@@ -45,6 +45,7 @@ import com.dbondarenko.shpp.notes.ui.listeners.OnEndlessRecyclerScrollListener;
 import com.dbondarenko.shpp.notes.ui.listeners.OnResultDialogListener;
 import com.dbondarenko.shpp.notes.ui.loaders.ApiServiceAsyncTaskLoader;
 import com.dbondarenko.shpp.notes.ui.widgets.MarginDecoration;
+import com.dbondarenko.shpp.notes.utils.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,13 +101,22 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         return true;
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.d(TAG, "onOptionsItemSelected()");
         switch (item.getItemId()) {
 
             case R.id.itemRefresh:
-                showRefreshDialogFragment();
+                if (Util.isInternetConnectionAvailable(getApplicationContext())){
+                    showRefreshDialogFragment();
+                } else {
+                    showSnackbar(recyclerViewNotesList, getString(R.string.error_no_connection),
+                            getString(R.string.button_repeat), listener -> {
+                                getSupportLoaderManager().restartLoader(Constants.LOADER_ID_API_SERVICE,
+                                        null, this);
+                            });
+                }
                 return true;
 
             default:
